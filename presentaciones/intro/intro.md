@@ -1,0 +1,44 @@
+---
+theme: default
+title: Diseño de Software - Introducción
+favicon: /favicon.ico
+routerMode: hash
+info: |
+  Presentación de Introducción al desarrollo de aplicaciones y layering de aplicaciones
+  Docente: Ezequiel Sosa
+  UNSAM - Diseño de Software
+drawings:
+  persist: false
+transition: slide-left
+comark: true
+css: unocss
+fonts:
+  sans: 'Inter'
+  serif: 'Outfit'
+  mono: 'Fira Code'
+src: ./pages/portada.md
+---
+
+---
+src: ./pages/aspectos.md
+---
+
+---
+src: ./pages/capas.md
+---
+
+---
+src: ./pages/dominio.md
+---
+
+---
+src: ./pages/presentacion.md
+---
+
+---
+src: ./pages/fuente-datos.md
+---
+
+---
+src: ./pages/ejemplo-gift-cards.md
+---
