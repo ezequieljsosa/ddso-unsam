@@ -20,8 +20,8 @@ Imaginemos una aplicación que administra gift cards de distintos proveedores. A
 ```mermaid
 %%{init: {"theme":"dark","themeVariables":{"fontFamily":"Inter","fontSize":"18px"}} }%%
 flowchart LR
-    U["Usuario"]
-    P["Proveedor de gift cards"]
+    U(["👤 Usuario"])
+    P(["👤 Proveedor de gift cards"])
 
     subgraph Sistema["Sistema de Gift Cards"]
         C["Consultar mis gift cards"]
@@ -164,39 +164,40 @@ Presenter Notes:
 -->
 
 ---
-zoom: 0.8
+class: sequence-tight
 ---
 
 # Usar la gift card
 <span class="text-cyan-400 font-semibold tracking-wider uppercase text-sm mb-2 block">Diagrama de secuencia: consumo de $3.500 con la tarjeta 7K2P</span>
 
 ```mermaid
-%%{init: {"theme":"dark","themeVariables":{"fontFamily":"Inter","fontSize":"36px"}} }%%
+%%{init: {"theme":"dark","themeVariables":{"fontFamily":"Inter","fontSize":"14px"}} }%%
 sequenceDiagram
     actor Usuario as "Usuario"
     participant Controller as "GiftCard<br/>Controller"
     participant Service as "GiftCard<br/>Service"
     participant Repo as "GiftCard<br/>Repository"
 
-    Usuario->>Controller: usar({ codigo: CN-7K2P, monto: 3500 })
-    Controller->>Service: usar(7K2P, 3500)
+    Usuario->>+Controller: usar({ codigo: CN-7K2P, monto: 3500 })
+    Controller->>+Service: usar(7K2P, 3500)
     Service->>Repo: buscarX<br/>Codigo(7K2P)
     create participant Card as "gf1:GiftCard"
     Repo->>Card:  codigo: 7K2P
    
-    Service->>Card: puedeUsarse(3500)
+    Service->>+Card: puedeUsarse(3500)
     Note over Card: Vigente y <br/>saldo suficiente
-    Card-->>Service: true
+    Card-->>-Service: true
     participant Client as "ProveedorGiftCard<br/>Client"
     actor Proveedor as "Proveedor<br/>externo"
-    Service->>Client: confirmarConsumo(gf1)
-    Client->>Proveedor: POST /consumos
-    Proveedor-->>Client: confirmado
-    Client-->>Service: ConfirmacionProveedor
-    Service->>Card: descontar(3500)
+    Service->>+Client: confirmarConsumo(gf1)
+    Client->>+Proveedor: POST /consumos
+    Proveedor-->>-Client: confirmado
+    Client-->>-Service: ConfirmacionProveedor
+    Service->>+Card: descontar(3500)
+    Card-->>-Service: ok
     Service->>Repo: guardar( gf1)
-    Service-->>Controller: UsoGiftCardResponse<br/>{ saldoActual: 4500 }
-    Controller-->>Usuario: consumo confirmado, saldo: 4500
+    Service-->>-Controller: UsoGiftCardResponse<br/>{ saldoActual: 4500 }
+    Controller-->>-Usuario: consumo confirmado, saldo: 4500
 ```
 
 <!--

@@ -20,7 +20,23 @@ src: ./pages/portada.md
 ---
 
 ---
+src: ./pages/pregunta-inicial.md
+---
+
+---
+src: ./pages/esfuerzo-vs-features.md
+---
+
+---
+src: ./pages/dos-valores.md
+---
+
+---
 src: ./pages/aspectos.md
+---
+
+---
+src: ./pages/arquitectura-vs-diseno.md
 ---
 
 ---
@@ -28,7 +44,7 @@ src: ./pages/capas.md
 ---
 
 ---
-src: ./pages/dominio.md
+src: ./pages/otros-modelos.md
 ---
 
 ---
@@ -40,5 +56,21 @@ src: ./pages/fuente-datos.md
 ---
 
 ---
+src: ./pages/dominio.md
+---
+
+---
+src: ./pages/service.md
+---
+
+---
+src: ./pages/dominio-service-practica.md
+---
+
+---
 src: ./pages/ejemplo-gift-cards.md
+---
+
+---
+src: ./pages/conclusiones.md
 ---

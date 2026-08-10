@@ -24,6 +24,10 @@ src: ./pages/filosofia.md
 ---
 
 ---
+src: ./pages/dos-valores.md
+---
+
+---
 src: ./pages/capas.md
 ---
 
