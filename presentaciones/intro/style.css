@@ -132,6 +132,23 @@ h2 {
   flex-shrink: 0;
 }
 
+/* Shiki code blocks styled as glassmorphic cards, matching Mermaid diagrams */
+.slidev-page pre.shiki {
+  background: rgba(255, 255, 255, 0.03) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 1rem !important;
+  padding: 1rem 1.25rem !important;
+  font-size: 0.72rem !important;
+  line-height: 1.6 !important;
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5) !important;
+}
+
+.slidev-page pre.shiki code {
+  background: transparent !important;
+}
+
 /* Custom styles for Mermaid diagrams to act as cards and scale properly without HTML wrappers */
 .slidev-page .mermaid {
   background: rgba(255, 255, 255, 0.03) !important;
