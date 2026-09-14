@@ -202,6 +202,20 @@ h2 {
 .compact-slide .mermaid {
   zoom: 0.65 !important;
 }
+.compact-slide ul {
+  margin-bottom: 0.5rem !important;
+}
+.compact-slide li {
+  margin-bottom: 0.15rem !important;
+}
+.compact-slide pre.shiki {
+  padding: 0.6rem 0.85rem !important;
+  font-size: 0.62rem !important;
+  line-height: 1.4 !important;
+}
+.compact-slide .gamma-card {
+  padding: 0.6rem !important;
+}
 
 .diagram-tight .mermaid {
   zoom: 0.5 !important;

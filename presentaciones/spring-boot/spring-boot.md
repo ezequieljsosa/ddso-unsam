@@ -12,6 +12,7 @@ drawings:
 transition: slide-left
 comark: true
 colorSchema: dark
+selectable: true
 css: unocss
 fonts:
   sans: 'Inter'

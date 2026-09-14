@@ -11,6 +11,7 @@ drawings:
   persist: false
 transition: slide-left
 comark: true
+selectable: true
 css: unocss
 fonts:
   sans: 'Inter'

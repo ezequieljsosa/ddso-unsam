@@ -11,6 +11,7 @@ drawings:
   persist: false
 transition: slide-left
 comark: true
+selectable: true
 css: unocss
 fonts:
   sans: 'Inter'
@@ -24,19 +25,15 @@ src: ./pages/pregunta-inicial.md
 ---
 
 ---
-src: ./pages/temas-principales.md
+src: ./pages/arquitectura-computadoras.md
 ---
 
 ---
-src: ./pages/importancia-recursos.md
+src: ./pages/sistemas-operativos.md
 ---
 
 ---
-src: ./pages/definiciones.md
----
-
----
-src: ./pages/memoria-vs-datos.md
+src: ./pages/ejemplo-instancias-calculadora.md
 ---
 
 ---
@@ -44,11 +41,15 @@ src: ./pages/procesos.md
 ---
 
 ---
-src: ./pages/concurrencia-transacciones.md
+src: ./pages/hilos.md
 ---
 
 ---
-src: ./pages/hilos.md
+src: ./pages/memoria-vs-datos.md
+---
+
+---
+src: ./pages/concurrencia-transacciones.md
 ---
 
 ---
@@ -64,15 +65,7 @@ src: ./pages/diagrama-componentes.md
 ---
 
 ---
-src: ./pages/distribucion.md
----
-
----
 src: ./pages/red-tcpip.md
----
-
----
-src: ./pages/corolario.md
 ---
 
 ---
