@@ -1,0 +1,424 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* Slidev layouts custom styling */
+:root {
+  --slidev-theme-background: radial-gradient(circle at 10% 20%, #0f172a 0%, #05070f 100%);
+  --slidev-theme-text: #f8fafc;
+}
+
+.slidev-page, .slidev-layout {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background: radial-gradient(circle at 10% 20%, #0f172a 0%, #05070f 100%) !important;
+  color: #f8fafc !important;
+}
+
+/* Headings with Outfit font */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Outfit', sans-serif !important;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #ffffff !important;
+}
+
+h1 {
+  font-size: 2.25rem !important;
+  line-height: 2.5rem !important;
+}
+
+h2 {
+  font-size: 1.75rem !important;
+  line-height: 2rem !important;
+}
+
+/* Custom background for specific slides if needed */
+.slidev-layout.cover {
+  background: radial-gradient(circle at 80% 20%, #1e1b4b 0%, #030712 100%) !important;
+}
+
+/* Glassmorphic Card Styling - Signature Gamma look */
+.gamma-card {
+  background: rgba(255, 255, 255, 0.03) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 1rem !important;
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5) !important;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.gamma-card:hover {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.6), 0 0 15px 0 rgba(99, 102, 241, 0.1) !important;
+}
+
+/* Custom Badge */
+.gamma-badge {
+  padding: 0.15rem 0.5rem;
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-radius: 9999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Color codes for badges & glow */
+.badge-presentation {
+  background: rgba(168, 85, 247, 0.15) !important;
+  color: #c084fc !important;
+  border-color: rgba(168, 85, 247, 0.3) !important;
+}
+.badge-data {
+  background: rgba(59, 130, 246, 0.15) !important;
+  color: #60a5fa !important;
+  border-color: rgba(59, 130, 246, 0.3) !important;
+}
+.badge-concurrency {
+  background: rgba(245, 158, 11, 0.15) !important;
+  color: #fbbf24 !important;
+  border-color: rgba(245, 158, 11, 0.3) !important;
+}
+.badge-domain {
+  background: rgba(16, 185, 129, 0.15) !important;
+  color: #34d399 !important;
+  border-color: rgba(16, 185, 129, 0.3) !important;
+}
+.badge-integration {
+  background: rgba(6, 182, 212, 0.15) !important;
+  color: #22d3ee !important;
+  border-color: rgba(6, 182, 212, 0.3) !important;
+}
+.badge-transversal {
+  background: rgba(244, 63, 94, 0.15) !important;
+  color: #fb7185 !important;
+  border-color: rgba(244, 63, 94, 0.3) !important;
+}
+
+/* Custom Animations */
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.6; }
+}
+
+.glow-bg {
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  filter: blur(80px);
+  z-index: -1;
+  pointer-events: none;
+  animation: pulse-glow 8s infinite alternate;
+}
+
+/* Fowler layout list numbering */
+.step-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  background: rgba(99, 102, 241, 0.2);
+  border: 1px solid rgba(99, 102, 241, 0.4);
+  color: #818cf8;
+  font-weight: 700;
+  font-size: 0.8rem;
+  flex-shrink: 0;
+}
+
+/* Shiki code blocks styled as glassmorphic cards, matching Mermaid diagrams */
+.slidev-page pre.shiki {
+  background: rgba(255, 255, 255, 0.03) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 1rem !important;
+  padding: 1rem 1.25rem !important;
+  font-size: 0.72rem !important;
+  line-height: 1.6 !important;
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5) !important;
+}
+
+.slidev-page pre.shiki code {
+  background: transparent !important;
+}
+
+/* Custom styles for Mermaid diagrams to act as cards and scale properly without HTML wrappers */
+.slidev-page .mermaid {
+  background: rgba(255, 255, 255, 0.03) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 1rem !important;
+  padding: 1.5rem !important;
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5) !important;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.zoom-diagram-17 .mermaid {
+  zoom: 1.75 !important;
+}
+
+.zoom-diagram-16 .mermaid {
+  zoom: 1.6 !important;
+}
+
+.zoom-diagram-175 .mermaid {
+  zoom: 1.4 !important;
+}
+
+.xychart-slide {
+  padding-top: 0.75rem !important;
+  padding-bottom: 0.75rem !important;
+}
+.xychart-slide h1 {
+  margin-bottom: 0.25rem !important;
+}
+.xychart-slide .mermaid {
+  zoom: 0.8 !important;
+  padding: 1rem !important;
+  margin-bottom: 0 !important;
+}
+
+.compact-slide {
+  padding-top: 1rem !important;
+  padding-bottom: 1rem !important;
+}
+.compact-slide h2 {
+  margin-bottom: 0.5rem !important;
+}
+.compact-slide p {
+  margin-bottom: 0.5rem !important;
+}
+.compact-slide .mermaid {
+  zoom: 0.65 !important;
+}
+.compact-slide ul {
+  margin-bottom: 0.5rem !important;
+}
+.compact-slide li {
+  margin-bottom: 0.15rem !important;
+}
+.compact-slide pre.shiki {
+  padding: 0.6rem 0.85rem !important;
+  font-size: 0.62rem !important;
+  line-height: 1.4 !important;
+}
+.compact-slide .gamma-card {
+  padding: 0.6rem !important;
+}
+
+.diagram-tight .mermaid {
+  zoom: 0.5 !important;
+  padding: 0.75rem !important;
+}
+
+.sequence-tight {
+  padding-top: 0.5rem !important;
+  padding-bottom: 0.5rem !important;
+}
+.sequence-tight h1 {
+  margin-bottom: 0.25rem !important;
+}
+.sequence-tight .mermaid {
+  zoom: 0.45 !important;
+  padding: 0.5rem !important;
+}
+
+/* ===== Interfaz de usuario: legibilidad para proyector de bajo brillo ===== */
+.slidev-layout {
+  font-size: 1.45rem !important;
+  line-height: 1.4 !important;
+}
+.slidev-layout h1 {
+  font-size: 2.8rem !important;
+  line-height: 3rem !important;
+  margin-bottom: 0.5rem !important;
+}
+.slidev-page .mermaid {
+  zoom: 1.3;
+  padding: 1rem !important;
+}
+.slidev-layout pre.shiki {
+  font-size: 1.05rem !important;
+  line-height: 1.5 !important;
+}
+.slidev-layout table {
+  font-size: 1.05rem !important;
+}
+.slidev-layout th {
+  color: #67e8f9 !important;
+}
+
+.kicker {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #67e8f9;
+  margin-bottom: 1rem;
+}
+
+/* Palabras clave grandes */
+.kw-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  align-items: center;
+}
+.kw {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 1rem;
+  border-radius: 9999px;
+  font-weight: 700;
+  font-size: 1.3rem;
+  background: #ffffff1a;
+  border: 2px solid #ffffff4d;
+  color: #ffffff;
+}
+/* Código de colores MVC (igual en todos los diagramas) */
+.kw-m { background: #10b98140; border-color: #34d399; color: #d1fae5; }
+.kw-v { background: #a855f740; border-color: #c084fc; color: #f3e8ff; }
+.kw-c { background: #f59e0b40; border-color: #fbbf24; color: #fef3c7; }
+.kw-x { background: #06b6d433; border-color: #22d3ee; color: #cffafe; }
+.kw-ok { background: #22c55e33; border-color: #4ade80; color: #dcfce7; }
+.kw-bad { background: #f43f5e33; border-color: #fb7185; color: #ffe4e6; }
+
+/* Tarjetas grandes con ícono */
+.big-card {
+  text-align: center;
+  padding: 1rem 0.75rem !important;
+}
+.big-card .icon {
+  font-size: 2.6rem;
+  line-height: 1;
+  margin-bottom: 0.4rem;
+}
+.big-card .label {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 700;
+  font-size: 1.35rem;
+  color: #ffffff;
+}
+.big-card .sub {
+  font-size: 1rem;
+  color: #cbd5e1;
+  margin-top: 0.2rem;
+}
+
+/* Zoom de diagramas por slide */
+.zoom-07 .mermaid { zoom: 0.7 !important; }
+.zoom-08 .mermaid { zoom: 0.8 !important; }
+.zoom-1 .mermaid { zoom: 1 !important; }
+.zoom-11 .mermaid { zoom: 1.1 !important; }
+.zoom-15 .mermaid { zoom: 1.5 !important; }
+.zoom-18 .mermaid { zoom: 1.8 !important; }
+
+/* Maqueta de ventana de escritorio */
+.mock-win {
+  border: 2px solid #64748b;
+  border-radius: 0.6rem;
+  overflow: hidden;
+  background: #1e293b;
+  font-size: 0.9rem;
+}
+.mock-bar {
+  background: #334155;
+  padding: 0.3rem 0.7rem;
+  color: #e2e8f0;
+  display: flex;
+  gap: 1rem;
+}
+.mock-body {
+  display: flex;
+  height: 220px;
+}
+.mock-tools {
+  width: 44px;
+  background: #0f172a;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding-top: 0.5rem;
+  font-size: 1.1rem;
+}
+.mock-canvas {
+  flex: 1;
+  margin: 0.8rem;
+  border-radius: 0.3rem;
+  background: linear-gradient(135deg, #f472b6, #818cf8 50%, #22d3ee);
+}
+.mock-panel {
+  width: 150px;
+  background: #0f172a;
+  padding: 0.5rem;
+  color: #e2e8f0;
+}
+.mock-panel div {
+  border: 1px solid #475569;
+  border-radius: 0.25rem;
+  padding: 0.15rem 0.4rem;
+  margin-bottom: 0.3rem;
+}
+
+/* El tema default atenúa el párrafo que sigue al h1 */
+.slidev-layout h1 + p {
+  opacity: 1 !important;
+}
+
+/* Maqueta de chat */
+.chat {
+  border: 2px solid #64748b;
+  border-radius: 1rem;
+  background: #0f172a;
+  padding: 0.8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  font-size: 1.05rem;
+}
+.chat-head {
+  color: #e2e8f0;
+  font-weight: 700;
+  border-bottom: 1px solid #334155;
+  padding-bottom: 0.4rem;
+}
+.msg-in, .msg-out {
+  max-width: 80%;
+  padding: 0.35rem 0.8rem;
+  border-radius: 0.9rem;
+  color: #ffffff;
+}
+.msg-in {
+  align-self: flex-start;
+  background: #334155;
+}
+.msg-out {
+  align-self: flex-end;
+  background: #0284c7;
+}
+.chat-btns {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+.chat-btns span {
+  border: 2px solid #38bdf8;
+  color: #e0f2fe;
+  border-radius: 0.5rem;
+  padding: 0.15rem 0.6rem;
+  font-weight: 600;
+}
