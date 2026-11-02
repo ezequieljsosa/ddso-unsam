@@ -160,7 +160,7 @@ window.PREGUNTAS_AVANZADAS = [
       'sequenceDiagram',
       '  participant S as CanjeService',
       '  participant CC as ComercioClient',
-      '  participant So as "s1:Socio"',
+      '  participant So as s1:Socio',
       '  activate S',
       '  S->>+CC: confirmarCanje(1001, TERMO)',
       '  CC-->>-S: confirmado',
@@ -281,7 +281,7 @@ window.PREGUNTAS_AVANZADAS = [
     ]
   },
   {
-    id: 'A17', tema: 'Testing', caso: 'biblioteca', fragmento: 'prestamo',
+    id: 'A17', tema: 'Testing', caso: 'biblioteca', fragmento: 'secuenciaClases',
     enunciado: '<p>En la secuencia a nivel clases de la Biblioteca aparece el paso “<code>p9:Prestamo</code>.devolver(hoy) ⇒ Multa de 1500”. ¿Qué test lo cubre y qué tipo de test es?</p>',
     opciones: [
       { t: 'BI-T2: unitario de Dominio, sin mocks.', ok: true,
@@ -309,7 +309,7 @@ window.PREGUNTAS_AVANZADAS = [
     ]
   },
 
-  // ----------------------- Diseño y principios (3) -----------------------
+  // ----------------------- Diseño y principios (5) -----------------------
   {
     id: 'A19', tema: 'Diseño y principios', caso: 'clubpuntos', fragmento: 'canje',
     enunciado: '<p>Con el tiempo, <code>CanjeService</code> también calcula cuántos puntos corresponden a una compra, arma el PDF del comprobante y envía el mail de “canje exitoso” conectándose al servidor de correo. ¿Qué diagnóstico es el más preciso?</p>',
@@ -340,16 +340,44 @@ window.PREGUNTAS_AVANZADAS = [
   },
   {
     id: 'A21', tema: 'Diseño y principios', caso: 'clubpuntos', fragmento: 'canje',
-    enunciado: '<p>Cada vez que el comercio cambia el formato de su API, el equipo termina modificando <code>CanjeService</code>, <code>Socio</code> y <code>CanjeController</code>, y casi siempre algo se rompe. ¿Qué describe mejor la situación y cómo se ataca?</p>',
+    enunciado: '<p>Cada vez que el comercio cambia el formato de su API, el equipo termina modificando <code>CanjeService</code>, <code>Socio</code> y <code>CanjeController</code>. ¿Qué cualidad hay que mejorar y cómo?</p>',
     opciones: [
-      { t: 'Rigidez y fragilidad por acoplamiento; se aísla todo en <code>ComercioClient</code>.', ok: true,
-        fb: 'El layering aísla los cambios de cada aspecto. Si un cambio externo atraviesa tres capas, falta ese aislamiento.' },
-      { t: 'Opacidad; se resuelve agregando comentarios que expliquen el formato del comercio.',
-        fb: 'Los comentarios no reducen el acoplamiento: el cambio seguiría atravesando tres clases.' },
-      { t: 'Complejidad heredada del dominio; no se puede evitar porque el comercio manda.',
-        fb: 'El formato de la API del comercio no es parte del negocio del club: es complejidad accidental.' },
-      { t: 'Complejidad innecesaria; se resuelve borrando <code>ComercioClient</code> y llamando directo.',
-        fb: 'Borrar el Client empeoraría las cosas: es justamente la pieza que debería absorber esos cambios.' }
+      { t: 'Bajar el acoplamiento con el sistema externo, aislando todo lo del comercio en <code>ComercioClient</code>.', ok: true,
+        fb: 'Con bajo acoplamiento, un cambio externo queda acotado a la Fuente de datos y no se propaga por las otras capas: mejora la flexibilidad (mantenibilidad).' },
+      { t: 'Mejorar la consistencia, usando los mismos nombres de campos que el comercio en todas las clases.',
+        fb: 'Copiar los nombres del comercio en todas las capas aumenta el acoplamiento: cada cambio externo seguiría atravesando todo.' },
+      { t: 'Mejorar la robustez, agregando manejo de excepciones en <code>CanjeController</code>.',
+        fb: 'Manejar errores no evita que haya que modificar tres clases ante cada cambio del comercio.' },
+      { t: 'Subir la cohesión de <code>CanjeService</code>, moviendo ahí todo lo que tenga que ver con el comercio.',
+        fb: 'El Service quedaría con dos responsabilidades (orquestar y hablar con el comercio): baja su cohesión.' }
+    ]
+  },
+  {
+    id: 'A35', tema: 'Diseño y principios', caso: 'clubpuntos', fragmento: 'canje',
+    enunciado: '<p>El equipo nota que los tests CP-T1 y CP-T2 se escriben en pocas líneas, sin mocks ni base de datos. ¿Qué dice eso del diseño?</p>',
+    opciones: [
+      { t: 'Que <code>Socio</code> es cohesivo y está desacoplado de la infraestructura.', ok: true,
+        fb: 'La facilidad de prueba suele habilitar o reflejar otras cualidades: alta cohesión y bajo acoplamiento.' },
+      { t: 'Que los tests son pobres: un buen test unitario siempre usa mocks.',
+        fb: 'Los mocks se usan cuando hay dependencias que aislar. Si la unidad no las tiene, mejor.' },
+      { t: 'Que <code>Socio</code> es anémico, porque no depende de ninguna otra clase.',
+        fb: 'Anémico es no tener comportamiento. Socio tiene reglas (puntos vigentes, si puede canjear); no depender de la infraestructura es una virtud.' },
+      { t: 'Nada: la facilidad de prueba no tiene relación con la calidad del diseño.',
+        fb: 'Tiene relación directa: es una de las cualidades que buscamos y suele ir de la mano con las demás.' }
+    ]
+  },
+  {
+    id: 'A36', tema: 'Diseño y principios', caso: 'biblioteca', fragmento: 'prestamo',
+    enunciado: '<p>Se agrega: “los socios docentes pueden tener hasta 5 préstamos”. Como la regla está en <code>Socio.puedePedirPrestamo()</code>, el cambio queda en un solo lugar y no toca el Controller ni el Service. ¿Qué cualidades explican eso?</p>',
+    opciones: [
+      { t: 'Alta cohesión (un único lugar con la verdad sobre la regla) que da flexibilidad.', ok: true,
+        fb: 'Como la regla vive en un solo lugar, el cambio es puntual: es la mantenibilidad que buscamos.' },
+      { t: 'Robustez, porque la regla nueva no lanza excepciones distintas.',
+        fb: 'Las excepciones no cambian el costo de este cambio; lo que lo abarata es dónde está la regla.' },
+      { t: 'Consistencia, porque ahora todos los socios tienen el mismo límite.',
+        fb: 'Al contrario: ahora hay límites distintos según el tipo de socio.' },
+      { t: 'Reusabilidad del Controller, que ahora sirve también para docentes.',
+        fb: 'El Controller no participa de la regla; ya servía para todos los socios.' }
     ]
   },
 
@@ -457,7 +485,7 @@ window.PREGUNTAS_AVANZADAS = [
     ]
   },
 
-  // ------------------------------ Datos (1) ------------------------------
+  // ------------------------------ Datos (3) ------------------------------
   {
     id: 'A29', tema: 'Datos', caso: 'clubpuntos', fragmento: 'canje',
     enunciado: '<p>El vencimiento nocturno recorre los 2 millones de socios y, por cada uno, accede a sus movimientos, que se cargan de forma <em>lazy</em> (uno por uno, cuando se los necesita). El proceso no termina dentro de su ventana de 00 a 06 h. ¿Qué está pasando?</p>',
@@ -472,8 +500,36 @@ window.PREGUNTAS_AVANZADAS = [
         fb: 'El tipo de aplicación no cambia la cantidad de consultas: una API con N + 1 también sería lenta.' }
     ]
   },
+  {
+    id: 'A37', tema: 'Datos', caso: 'biblioteca', fragmento: 'prestamo',
+    enunciado: '<p><code>Socio</code> pasa a tener dos subtipos, Estudiante y Docente, que casi solo difieren en el límite de préstamos. Los préstamos apuntan a un socio. Al mapearlos con el ORM, ¿qué estrategia de herencia es más razonable?</p>',
+    opciones: [
+      { t: 'Tabla única con una columna que indique el tipo de socio.', ok: true,
+        fb: 'Los subtipos casi no difieren, así que una sola tabla es simple, y los préstamos apuntan con una FK a una única tabla de socios.' },
+      { t: 'Una tabla por clase concreta: estudiantes y docentes por separado.',
+        fb: 'Los préstamos tendrían que apuntar a dos tablas distintas, lo que complica la FK y las consultas por socio.' },
+      { t: 'Ninguna: el ORM no puede persistir herencia, hay que eliminar los subtipos.',
+        fb: 'El ORM soporta herencia con varias estrategias: tabla única, joined o por clase concreta.' },
+      { t: 'Guardar el límite de préstamos en el Controller, según el tipo de socio.',
+        fb: 'Sacaría una regla de negocio del Dominio y no resuelve cómo persistir los subtipos.' }
+    ]
+  },
+  {
+    id: 'A38', tema: 'Datos', caso: 'clubpuntos', fragmento: 'canje',
+    enunciado: '<p>Queda una sola unidad de un premio. Dos socios lo canjean al mismo tiempo, los dos canjes leen <code>stock = 1</code> y los dos se confirman: el stock queda en −1. ¿Qué está pasando y qué se necesita?</p>',
+    opciones: [
+      { t: 'Concurrencia: la transacción del Service debe proteger juntas la lectura y la actualización del stock.', ok: true,
+        fb: 'El servidor atiende a muchos usuarios a la vez. La transacción tiene que evitar que dos canjes trabajen sobre el mismo dato viejo, y Premio no debería aceptar quedar en negativo.' },
+      { t: 'No puede pasar: un servidor atiende un pedido por vez, así que el segundo canje espera al primero.',
+        fb: 'Un servidor atiende a muchos clientes a la vez: los dos canjes se ejecutan en simultáneo.' },
+      { t: 'Es un problema de la app móvil: se resuelve deshabilitando el botón después del primer toque.',
+        fb: 'Son dos socios distintos en dos teléfonos: el problema está en el servidor, no en un doble clic.' },
+      { t: 'Es un problema de testing: se resuelve mockeando <code>PremioRepository</code> en los tests.',
+        fb: 'Los mocks aíslan una unidad en un test; no cambian lo que pasa en producción con usuarios concurrentes.' }
+    ]
+  },
 
-  // ----------------------- Tipos de aplicación (1) -----------------------
+  // ----------------------- Tipos de aplicación (3) -----------------------
   {
     id: 'A30', tema: 'Tipos de aplicación', caso: 'clubpuntos',
     enunciado: '<p>¿Qué clasificación de las partes del Club de Puntos es correcta?</p>',
@@ -486,6 +542,34 @@ window.PREGUNTAS_AVANZADAS = [
         fb: 'El vencimiento no lo pide nadie: lo dispara un horario (Batch). Y el tablero lo consulta una persona que espera el resultado: es Analítica, no Batch.' },
       { t: 'Todo es una sola aplicación Web, porque se accede por internet.',
         fb: 'Cada parte tiene otro usuario, otro disparador y otro tiempo de respuesta; la ficha las distingue. Un sistema real combina varios tipos.' }
+    ]
+  },
+  {
+    id: 'A39', tema: 'Tipos de aplicación', caso: 'biblioteca', fragmento: 'entradas',
+    enunciado: '<p>¿Por qué el aviso por mail se manda con un Worker que consume mensajes, en lugar de enviarlo dentro de <code>POST /prestamos</code>?</p>',
+    opciones: [
+      { t: 'Nadie espera el mail: el préstamo responde rápido y, si el mail falla, se reintenta aparte.', ok: true,
+        fb: 'Separar por “quién espera” es la clave de la ficha: el préstamo es sincrónico; el mail, no. El Worker reintenta solo.' },
+      { t: 'Los Workers responden en milisegundos, más rápido que una API.',
+        fb: 'Es al revés: un Worker tarda segundos o minutos, y está bien porque nadie lo espera.' },
+      { t: 'El Worker no necesita Service ni Dominio, así que es más simple.',
+        fb: 'El Worker es otra Presentación sobre el mismo Service y Dominio.' },
+      { t: 'Así el mail sale exactamente en el mismo instante en que se crea el préstamo.',
+        fb: 'Con un Worker el mail sale después, de forma asincrónica.' }
+    ]
+  },
+  {
+    id: 'A40', tema: 'Tipos de aplicación', caso: 'clubpuntos',
+    enunciado: '<p>Durante un Hot Sale, cada vez que la gerencia abre el tablero de puntos canjeados, los canjes desde la app se vuelven lentos. Los dos usan la misma base de datos. ¿Cuál es el diagnóstico?</p>',
+    opciones: [
+      { t: 'Cargas mezcladas: las consultas analíticas compiten con las transaccionales; el tablero necesita su copia.', ok: true,
+        fb: 'Transaccional ≠ analítico. Una copia nocturna (Batch) para el tablero separa las cargas, como en el e-commerce visto en clase.' },
+      { t: 'Faltan índices; con agregarlos en todas las tablas se resuelve sin cambiar el diseño de la aplicación.',
+        fb: 'Los índices ayudan a algunas consultas, pero no cambian que dos cargas muy distintas compitan por la misma base.' },
+      { t: 'El tablero debería ser una CLI, para que corra en la computadora del gerente.',
+        fb: 'Cambiar la cara no cambia que la consulta pesada siga pegándole a la misma base.' },
+      { t: 'La app móvil tiene que reintentar más veces cuando el canje tarda.',
+        fb: 'Reintentar agrega más carga sobre una base que ya está saturada.' }
     ]
   },
   // ------------------------- Modelado REST (4) -------------------------

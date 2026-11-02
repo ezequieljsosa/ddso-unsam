@@ -174,20 +174,20 @@ window.PREGUNTAS_BASICAS = [
   },
   {
     id: 'B13', tema: 'Capas',
-    enunciado: '<p>¿Cuál es la diferencia de alcance entre <strong>Arquitectura</strong> y <strong>Diseño</strong> de software, según la materia?</p>',
+    enunciado: '<p>¿Cuál es la diferencia entre la <strong>arquitectura</strong> y el <strong>diseño de un componente</strong>? ¿Cuál de los dos hacemos en la materia?</p>',
     opciones: [
-      { t: 'La arquitectura organiza varios sistemas; el diseño, una sola pieza por dentro.', ok: true,
-        fb: 'Son dos niveles de zoom. La materia se enfoca en el diseño de una pieza, con algunas interacciones puntuales hacia afuera (la base de datos u otro sistema).' },
-      { t: 'Son sinónimos: las dos describen cómo se organizan las clases.',
-        fb: 'En clase los distinguimos como dos niveles de zoom distintos sobre el mismo problema.' },
-      { t: 'La arquitectura trata el código y el diseño trata las pantallas y los colores.',
-        fb: 'Ninguna de las dos se limita a eso: el diseño de software trata la organización interna del código, no lo visual.' },
-      { t: 'El diseño se hace una vez al principio; la arquitectura cambia todo el tiempo.',
-        fb: 'El diseño también evoluciona: nunca está cerrado, porque los requerimientos cambian.' }
+      { t: 'La arquitectura organiza varios componentes y cómo se comunican; el diseño mira un componente por dentro. En la materia hacemos diseño de componentes.', ok: true,
+        fb: 'Son dos niveles de zoom. La arquitectura trata cómo se reparten y comunican muchos componentes (servicios, colas, balanceo). El diseño de un componente trata sus clases, módulos y capas, con algunas interacciones puntuales hacia afuera (la base de datos u otro sistema). Eso es lo que hacemos en la materia.' },
+      { t: 'Son sinónimos: las dos describen cómo se organizan las clases de un componente. En la materia hacemos las dos cosas por igual.',
+        fb: 'En clase los distinguimos como dos niveles de zoom distintos, y la arquitectura de varios componentes queda fuera del alcance de la materia.' },
+      { t: 'La arquitectura mira un componente por dentro; el diseño organiza varios componentes y cómo se comunican. En la materia hacemos arquitectura.',
+        fb: 'Está invertido: el zoom sobre un solo componente (sus clases y capas) es el diseño, y es lo que hacemos en la materia.' },
+      { t: 'La arquitectura trata el código y el diseño trata las pantallas y los colores. En la materia hacemos diseño de pantallas.',
+        fb: 'El diseño de software no es diseño visual: trata la organización interna del código de un componente.' }
     ]
   },
 
-  // ---------------------------- Testing (5) ----------------------------
+  // ---------------------------- Testing (4) ----------------------------
   {
     id: 'B14', tema: 'Testing',
     enunciado: '<p>¿Qué características tiene un <strong>test unitario</strong>?</p>',
@@ -244,25 +244,11 @@ window.PREGUNTAS_BASICAS = [
         fb: 'Al contrario: verify es clave cuando el método no devuelve nada pero debería producir un efecto (por ejemplo, guardar).' }
     ]
   },
-  {
-    id: 'B18', tema: 'Testing',
-    enunciado: '<p>¿Para qué sirve <code>@Profile("test")</code> sobre una implementación de un repositorio?</p>',
-    opciones: [
-      { t: 'Para que Spring registre esa implementación solo con el profile test activo.', ok: true,
-        fb: 'Con el profile se elige qué bean se registra; el Service sigue pidiendo la interfaz y no nota la diferencia.' },
-      { t: 'Para marcar que la clase es un test y que JUnit la ejecute.',
-        fb: 'Los tests se marcan con @Test. @Profile elige qué beans se crean según el entorno.' },
-      { t: 'Para que el repositorio sea más rápido cuando corre en producción.',
-        fb: 'Con @Profile("test") esa implementación ni siquiera existe en producción.' },
-      { t: 'Para que Spring ignore la clase y no la registre nunca.',
-        fb: 'No la ignora siempre: la registra únicamente cuando el profile test está activo.' }
-    ]
-  },
 
-  // ----------------------- Diseño y principios (3) -----------------------
+  // ----------------------- Diseño y principios (5) -----------------------
   {
     id: 'B19', tema: 'Diseño y principios',
-    enunciado: '<p>Según “una historia de dos valores”, ¿cuál es el valor <strong>importante pero no urgente</strong> del software?</p>',
+    enunciado: '<p>¿Cuál es el valor <strong>importante pero no urgente</strong> del software?</p>',
     opciones: [
       { t: 'La estructura (el diseño).', ok: true,
         fb: 'Nadie lo pide, pero sin él el sistema muere con el próximo cambio. Defenderlo es trabajo del equipo de desarrollo.' },
@@ -290,16 +276,44 @@ window.PREGUNTAS_BASICAS = [
   },
   {
     id: 'B21', tema: 'Diseño y principios',
-    enunciado: '<p>Un cambio chico obliga a modificar muchas clases, una tras otra, en cascada. ¿Qué <strong>design smell</strong> describe esta situación?</p>',
+    enunciado: '<p>Se quiere que agregar un nuevo medio de pago tenga <strong>poco impacto</strong> en lo que ya existe, y que modificar uno existente cueste poco esfuerzo. ¿Qué cualidad de diseño se busca?</p>',
     opciones: [
-      { t: 'Rigidez.', ok: true,
-        fb: 'Rigidez: el diseño es difícil de modificar porque cada cambio arrastra a otros.' },
-      { t: 'Opacidad.',
-        fb: 'Opacidad es cuando cuesta entender qué hace el diseño o cómo lo resuelve.' },
-      { t: 'Inmovilidad.',
-        fb: 'Inmovilidad es cuando cuesta reutilizar partes del diseño en otro contexto.' },
-      { t: 'Complejidad innecesaria.',
-        fb: 'Es sobrediseño: agregar estructura que el problema no necesita.' }
+      { t: 'Flexibilidad (extensibilidad y mantenibilidad).', ok: true,
+        fb: 'Flexibilidad es reflejar cambios del dominio de forma simple: extensibilidad para agregar sin tocar lo que está, mantenibilidad para modificar con poco esfuerzo.' },
+      { t: 'Consistencia (mismas decisiones ante problemas parecidos).',
+        fb: 'La consistencia ayuda a que el diseño sea predecible, pero no habla del costo de agregar o cambiar funcionalidad.' },
+      { t: 'Robustez (errores claros y deterministas).',
+        fb: 'La robustez trata sobre cómo se comporta ante fallas, no sobre el costo de los cambios.' },
+      { t: 'Redundancia (el mismo conocimiento en varios lugares).',
+        fb: 'La redundancia es algo a evitar: hace que cada cambio haya que repetirlo en varios lugares.' }
+    ]
+  },
+  {
+    id: 'B35', tema: 'Diseño y principios',
+    enunciado: '<p>Según la definición vista en clase, ¿qué es un <strong>buen diseño</strong>?</p>',
+    opciones: [
+      { t: 'Uno que oculta la complejidad heredada del dominio y minimiza la accidental.', ok: true,
+        fb: 'Es la definición de Venkat Subramaniam que tomamos como guía: la complejidad del negocio se encapsula y no agregamos complejidad propia.' },
+      { t: 'Uno sin ninguna complejidad, aunque deje casos del problema sin resolver.',
+        fb: 'Eso es simplismo: lo simple siempre tiene que estar completo.' },
+      { t: 'Uno que se hace completo en el primer intento y no se vuelve a tocar.',
+        fb: 'Es imposible lograr un buen diseño en el primer intento; se mejora en iteraciones, a medida que entendemos el dominio.' },
+      { t: 'Uno que aplica la mayor cantidad posible de patrones y principios.',
+        fb: 'Aplicar principios sin criterio genera complejidad innecesaria. Se usan cuando el contexto lo pide.' }
+    ]
+  },
+  {
+    id: 'B36', tema: 'Diseño y principios',
+    enunciado: '<p>Cuando ante problemas parecidos se toman decisiones de diseño parecidas, el diseño se vuelve predecible para quien lo lee. ¿Qué cualidad es esa?</p>',
+    opciones: [
+      { t: 'Consistencia.', ok: true,
+        fb: 'Aplicar los mismos criterios en todo el diseño lo hace predecible y más fácil de entender (simetría).' },
+      { t: 'Cohesión.',
+        fb: 'La cohesión habla de que cada componente resuelva un solo problema, no de repetir criterios entre componentes.' },
+      { t: 'Robustez.',
+        fb: 'La robustez trata sobre el comportamiento ante fallas y la claridad de los errores.' },
+      { t: 'Facilidad de prueba.',
+        fb: 'Es otra cualidad: qué tan fácil es probar que la solución funciona.' }
     ]
   },
 
@@ -334,20 +348,20 @@ window.PREGUNTAS_BASICAS = [
   },
   {
     id: 'B24', tema: 'Web y HTTP',
-    enunciado: '<p>¿Cuál de estos métodos HTTP <strong>no</strong> es típicamente idempotente?</p>',
+    enunciado: '<p>En un mensaje HTTP, ¿qué indica el header <code>Content-Type</code>?</p>',
     opciones: [
-      { t: 'POST.', ok: true,
-        fb: 'Repetir un POST suele crear otro recurso o disparar otra vez la acción: el efecto no es el mismo que hacerlo una sola vez.' },
-      { t: 'GET.',
-        fb: 'GET es idempotente: obtiene un recurso sin modificarlo.' },
-      { t: 'PUT.',
-        fb: 'PUT es idempotente: reemplazar el recurso varias veces con lo mismo deja el mismo resultado.' },
-      { t: 'DELETE.',
-        fb: 'DELETE es idempotente: una vez eliminado, repetirlo no cambia nada más.' }
+      { t: 'El formato del body (por ejemplo, <code>application/json</code>).', ok: true,
+        fb: 'Los headers son metadatos del mensaje. Content-Type dice qué formato tiene el body para que el otro lado sepa interpretarlo.' },
+      { t: 'El código de estado con el que terminó el pedido.',
+        fb: 'El código de estado va en la línea inicial de la respuesta, no en un header.' },
+      { t: 'La dirección del servidor al que se envía el pedido.',
+        fb: 'El servidor se indica con la URL (y el header Host), no con Content-Type.' },
+      { t: 'Las credenciales del usuario que hace el pedido.',
+        fb: 'Las credenciales viajan en el header Authorization.' }
     ]
   },
 
-  // ------------------------------ Spring (2) ------------------------------
+  // ------------------------------ Spring (1) ------------------------------
   {
     id: 'B25', tema: 'Spring',
     enunciado: '<p>¿Qué correspondencia entre anotaciones de Spring y capas es correcta?</p>',
@@ -362,21 +376,6 @@ window.PREGUNTAS_BASICAS = [
         fb: 'Spring tiene componentes para cada capa.' }
     ]
   },
-  {
-    id: 'B26', tema: 'Spring',
-    enunciado: '<p>¿Por qué se recomienda la <strong>inyección por constructor</strong> (el Service recibe su Repository en el constructor, en vez de crearlo con <code>new</code>)?</p>',
-    opciones: [
-      { t: 'Deja explícitas las dependencias y permite pasarle un mock en un test.', ok: true,
-        fb: 'Es lo que hacemos en los tests del Service: le pasamos repositorios mock por constructor.' },
-      { t: 'Porque así el Service puede crear su propio Repository cuando lo necesita.',
-        fb: 'Es justamente lo contrario: con inyección, el Service no crea sus dependencias, se las dan.' },
-      { t: 'Porque hace que la aplicación consuma menos memoria al arrancar.',
-        fb: 'No es una cuestión de memoria, sino de diseño y testeabilidad.' },
-      { t: 'Porque Java no permite usar <code>new</code> dentro de una clase con <code>@Service</code>.',
-        fb: 'Java lo permite; el problema es el acoplamiento que genera.' }
-    ]
-  },
-
   // ---------------------- Presentación y MVC (2) ----------------------
   {
     id: 'B27', tema: 'Presentación y MVC',
@@ -407,7 +406,7 @@ window.PREGUNTAS_BASICAS = [
     ]
   },
 
-  // ------------------------------ Datos (1) ------------------------------
+  // ------------------------------ Datos (3) ------------------------------
   {
     id: 'B29', tema: 'Datos',
     enunciado: '<p>¿Qué garantiza una <strong>transacción</strong> en una base de datos?</p>',
@@ -422,8 +421,36 @@ window.PREGUNTAS_BASICAS = [
         fb: 'Los errores pueden ocurrir; la transacción garantiza que, si ocurren, no queden cambios a medias.' }
     ]
   },
+  {
+    id: 'B37', tema: 'Datos',
+    enunciado: '<p>¿Qué busca principalmente la <strong>normalización</strong> de un modelo de datos?</p>',
+    opciones: [
+      { t: 'Aumentar la consistencia: que cada dato esté guardado en un solo lugar.', ok: true,
+        fb: 'Una única fuente de verdad reduce la posibilidad de tener datos contradictorios.' },
+      { t: 'Que las consultas de lectura sean siempre más rápidas que antes.',
+        fb: 'Al contrario: leer de un esquema normalizado suele ser más lento. Por eso a veces se desnormaliza.' },
+      { t: 'Guardar cada dato en varias tablas para no perderlo si una falla.',
+        fb: 'Eso sería duplicación, justamente lo que la normalización evita.' },
+      { t: 'Reemplazar todas las claves primarias por claves foráneas.',
+        fb: 'Las dos claves cumplen roles distintos y se siguen usando en un modelo normalizado.' }
+    ]
+  },
+  {
+    id: 'B38', tema: 'Datos',
+    enunciado: '<p>¿Para qué sirve una <strong>clave foránea</strong> (FK) en una tabla?</p>',
+    opciones: [
+      { t: 'Para relacionar la fila con otra tabla y mantener la integridad referencial.', ok: true,
+        fb: 'La FK apunta a la clave primaria de otra tabla; la base garantiza que no queden referencias a filas que no existen.' },
+      { t: 'Para identificar de forma única cada una de las filas de su propia tabla.',
+        fb: 'Eso es la clave primaria (PK).' },
+      { t: 'Para que las consultas de esa tabla se ejecuten más rápido.',
+        fb: 'No es su objetivo: la FK expresa una relación entre tablas.' },
+      { t: 'Para guardar datos que vienen de un sistema externo.',
+        fb: 'No tiene que ver con el origen de los datos sino con las relaciones entre tablas.' }
+    ]
+  },
 
-  // ----------------------- Tipos de aplicación (1) -----------------------
+  // ----------------------- Tipos de aplicación (3) -----------------------
   {
     id: 'B30', tema: 'Tipos de aplicación',
     enunciado: '<p>Liquidar los sueldos de 10.000 empleados todas las noches, sin que nadie esté esperando frente a una pantalla, es típicamente una aplicación de tipo…</p>',
@@ -436,6 +463,34 @@ window.PREGUNTAS_BASICAS = [
         fb: 'Ficha API: otro sistema hace un pedido HTTP y espera la respuesta en milisegundos.' },
       { t: 'CLI.',
         fb: 'Ficha CLI: un desarrollador u operador ejecuta un comando frente a la terminal.' }
+    ]
+  },
+  {
+    id: 'B39', tema: 'Tipos de aplicación',
+    enunciado: '<p>¿Qué es un <strong>atributo de calidad</strong>?</p>',
+    opciones: [
+      { t: 'Cómo hace el sistema lo que hace: por ejemplo, “en 2 s, 24/7, sin duplicar”.', ok: true,
+        fb: 'Rendimiento, disponibilidad, escalabilidad, tolerancia a fallos: no hablan de qué hace el sistema sino de cómo.' },
+      { t: 'Qué hace el sistema: por ejemplo, “transferir dinero entre cuentas”.',
+        fb: 'Eso es un requerimiento funcional.' },
+      { t: 'La cantidad de clases y capas que tiene el diseño.',
+        fb: 'Es una característica del código, no un atributo de calidad del sistema.' },
+      { t: 'El lenguaje de programación con el que está hecho el sistema.',
+        fb: 'Es una decisión técnica, no una exigencia sobre cómo debe comportarse el sistema.' }
+    ]
+  },
+  {
+    id: 'B40', tema: 'Tipos de aplicación',
+    enunciado: '<p>Enviar el mail de “tu compra fue confirmada” un minuto después de la compra, a partir de un mensaje en una cola, sin que nadie espere, es típicamente un…</p>',
+    opciones: [
+      { t: 'Worker.', ok: true,
+        fb: 'Ficha Worker: lo dispara un mensaje, tarda segundos o minutos, nadie espera, y si falla reintenta solo.' },
+      { t: 'Batch.',
+        fb: 'Batch lo dispara un horario y procesa grandes volúmenes juntos; acá cada mensaje se procesa al llegar.' },
+      { t: 'API.',
+        fb: 'En una API otro sistema hace un pedido HTTP y espera la respuesta en milisegundos.' },
+      { t: 'Analítica.',
+        fb: 'Analítica responde consultas de un analista sobre millones de filas.' }
     ]
   },
   // ------------------------- Modelado REST (4) -------------------------

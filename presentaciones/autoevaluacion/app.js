@@ -28,7 +28,7 @@
   var CLAVE_STORAGE = 'ddso-autoevaluacion-v1';
   var LETRAS = ['A', 'B', 'C', 'D', 'E'];
   // Elegida para que la opción correcta quede repartida entre A, B, C y D en cada nivel.
-  var SAL_MEZCLA = '1842:';
+  var SAL_MEZCLA = '20:';
 
   var estado = cargarEstado();
   var filtroTema = { basicas: null, medias: null, avanzadas: null };
@@ -248,8 +248,10 @@
     }
     html += '</div><div class="enunciado">' + p.enunciado + '</div>';
     if (caso && p.fragmento) {
-      html += htmlDiagrama(caso.fragmentos[p.fragmento],
-        'Extracto del diagrama de clases de “' + escapar(caso.titulo) + '” (el caso completo está en el enlace de arriba)');
+      var fragmento = caso.fragmentos[p.fragmento];
+      var tipo = /^\s*sequenceDiagram/.test(fragmento) ? 'la secuencia' : 'el diagrama de clases';
+      html += htmlDiagrama(fragmento,
+        'Para repasar: ' + tipo + ' de “' + escapar(caso.titulo) + '” (el caso completo está en el enlace de arriba)');
     }
     if (p.diagrama) html += htmlDiagrama(p.diagrama, p.diagramaTitulo);
 

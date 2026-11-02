@@ -18,7 +18,7 @@ window.PREGUNTAS_MEDIAS = [
     ]
   },
   {
-    id: 'M02', tema: 'Capas', caso: 'giftcards', fragmento: 'capas',
+    id: 'M02', tema: 'Capas', caso: 'giftcards', fragmento: 'secuenciaClases',
     enunciado: '<p>Mirando la secuencia a nivel clases de Gift Cards, ¿quién <strong>decide</strong> si la gift card puede usarse para pagar $3.500?</p>',
     opciones: [
       { t: 'El objeto <code>gf1:GiftCard</code>, con <code>puedeUsarse(3500)</code>.', ok: true,
@@ -60,7 +60,7 @@ window.PREGUNTAS_MEDIAS = [
     ]
   },
   {
-    id: 'M05', tema: 'Capas', caso: 'billetera', fragmento: 'transferir',
+    id: 'M05', tema: 'Capas', caso: 'billetera', fragmento: 'secuenciaTransferir',
     enunciado: '<p>Según las secuencias de la Billetera, ¿qué hace <code>CuentaService.transferir</code>?</p>',
     opciones: [
       { t: 'Busca las cuentas, le delega la regla a la cuenta origen y guarda todo junto.', ok: true,
@@ -109,7 +109,7 @@ window.PREGUNTAS_MEDIAS = [
       '  actor U as Usuario',
       '  participant C as GiftCardController',
       '  participant R as GiftCardRepository',
-      '  participant G as "gf1:GiftCard"',
+      '  participant G as gf1:GiftCard',
       '  U->>+C: POST /giftcards/CN-7K2P/usos { monto: 3500 }',
       '  C->>+R: buscarPorCodigo(CN-7K2P)',
       '  R-->>-C: gf1',
@@ -161,7 +161,7 @@ window.PREGUNTAS_MEDIAS = [
     ]
   },
   {
-    id: 'M11', tema: 'Capas', caso: 'tareas', fragmento: 'capas',
+    id: 'M11', tema: 'Capas', caso: 'tareas', fragmento: 'secuenciaCrear',
     enunciado: '<p>En la secuencia de “crear una tarea”, ¿qué afirmación es correcta?</p>',
     opciones: [
       { t: 'Cada capa habla solo con la siguiente.', ok: true,
@@ -176,20 +176,20 @@ window.PREGUNTAS_MEDIAS = [
   },
   {
     id: 'M12', tema: 'Capas', caso: 'billetera', fragmento: 'repositorios',
-    enunciado: '<p>En la Billetera, <code>CuentaRepository</code> es una interfaz con dos implementaciones (JPA y en memoria). Al cambiar el profile de <code>local</code> a <code>test</code>, ¿qué clases hay que modificar?</p>',
+    enunciado: '<p>En la Billetera, <code>CuentaRepository</code> es una interfaz con dos implementaciones: <code>CuentaRepositoryJpa</code> (profiles <code>local</code> y <code>prod</code>) y <code>CuentaRepositoryEnMemoria</code> (profile <code>test</code>). Si la aplicación arranca con el profile <code>test</code>, ¿qué implementación de <code>CuentaRepository</code> se instancia?</p>',
     opciones: [
-      { t: '<code>CuentaService</code>, para que cree la versión en memoria.',
-        fb: 'El Service no crea sus dependencias: las recibe por constructor, y Spring elige cuál según el profile.' },
-      { t: '<code>Cuenta</code>, para que sepa guardarse en memoria.',
-        fb: 'La entidad no sabe cómo se guarda; eso es de la Fuente de datos.' },
-      { t: '<code>CuentaController</code>, para que use otro Service.',
-        fb: 'El Controller ni se entera: sigue usando el mismo CuentaService.' },
-      { t: 'Ninguna de las anteriores: Spring inyecta la otra implementación.', fija: true, ok: true,
-        fb: 'El Service y el Dominio dependen de la interfaz, no de una tecnología. La Fuente de datos se puede intercambiar sin tocar código.' }
+      { t: '<code>CuentaRepositoryEnMemoria</code>, porque es la que tiene el profile test.', ok: true,
+        fb: 'Spring solo registra los beans cuyo profile está activo. CuentaService recibe la interfaz por constructor y no se entera de cuál le tocó.' },
+      { t: '<code>CuentaRepositoryJpa</code>, porque es la que usa la base de datos real.',
+        fb: 'Esa implementación solo se registra con los profiles local y prod; con test ni siquiera se crea.' },
+      { t: 'Las dos, y <code>CuentaService</code> elige cuál usar en cada llamada.',
+        fb: 'Con el profile test se registra una sola. Y el Service no elige: depende de la interfaz y recibe lo que Spring le inyecta.' },
+      { t: 'Ninguna: <code>CuentaService</code> tiene que crearla con <code>new</code> según el profile.',
+        fb: 'El Service no crea sus dependencias ni conoce los profiles: Spring decide qué implementación inyectarle.' }
     ]
   },
   {
-    id: 'M13', tema: 'Capas', caso: 'giftcards', fragmento: 'capas',
+    id: 'M13', tema: 'Capas', caso: 'giftcards', fragmento: 'secuenciaClases',
     enunciado: '<p>En la secuencia de Gift Cards, el Service pregunta <code>puedeUsarse(3500)</code> <strong>antes</strong> de llamar a <code>confirmarConsumo</code> en el proveedor. ¿Por qué importa ese orden?</p>',
     opciones: [
       { t: 'Para no confirmarle al proveedor un consumo que el Dominio rechazaría.', ok: true,
@@ -275,7 +275,7 @@ window.PREGUNTAS_MEDIAS = [
     ]
   },
 
-  // ----------------------- Diseño y principios (3) -----------------------
+  // ----------------------- Diseño y principios (5) -----------------------
   {
     id: 'M19', tema: 'Diseño y principios', caso: 'giftcards', fragmento: 'capas',
     enunciado: '<p>Supongamos que <code>GiftCardService</code>, además de orquestar el uso, arma el JSON de la respuesta y escribe a mano el SQL para guardar la tarjeta. ¿Qué principio se ve afectado y por qué?</p>',
@@ -316,6 +316,34 @@ window.PREGUNTAS_MEDIAS = [
         fb: 'El descubierto es una regla simple. La complejidad la agregó el diseño (es accidental).' },
       { t: 'Ninguno: es un error de tipeo del programador.', fija: true,
         fb: 'El diseño facilitó el error: con una sola copia de la regla, no había nada que olvidar.' }
+    ]
+  },
+  {
+    id: 'M35', tema: 'Diseño y principios', caso: 'billetera', fragmento: 'transferir',
+    enunciado: '<p>Cuando una transferencia no se puede hacer, <code>Cuenta</code> lanza <code>TransferenciaException</code> con un mensaje claro (“fondos insuficientes”), en lugar de una excepción genérica con “hubo un error”. ¿Qué cualidad mejora?</p>',
+    opciones: [
+      { t: 'Robustez: errores claros, al nivel de abstracción del negocio.', ok: true,
+        fb: 'Una jerarquía de excepciones propia describe la situación excepcional en términos del dominio, y permite que la Presentación la traduzca a la respuesta correcta.' },
+      { t: 'Rendimiento: una excepción específica se procesa más rápido.',
+        fb: 'No hay diferencia de rendimiento relevante: es una cuestión de claridad.' },
+      { t: 'Simplicidad: hay menos clases que con una excepción genérica.',
+        fb: 'Hay más clases, no menos. Lo que se gana es claridad sobre qué falló.' },
+      { t: 'Ninguna: el tipo de excepción da igual mientras la operación falle.', fija: true,
+        fb: 'No da igual: con una excepción genérica no se puede distinguir un error de negocio (400) de una falla del servidor (500).' }
+    ]
+  },
+  {
+    id: 'M36', tema: 'Diseño y principios', caso: 'giftcards',
+    enunciado: '<p>En Gift Cards, validar la vigencia y el saldo es parte del problema. En cambio, tener que convertir los mismos datos tres veces entre formatos distintos es algo que agregamos nosotros. ¿Cómo se clasifican esas dos complejidades?</p>',
+    opciones: [
+      { t: 'La primera es heredada (del dominio) y la segunda es accidental.', ok: true,
+        fb: 'Un buen diseño oculta la complejidad heredada y minimiza la accidental.' },
+      { t: 'La primera es accidental y la segunda es heredada del dominio.',
+        fb: 'Está invertido: la vigencia y el saldo vienen del negocio; las conversiones las agregamos nosotros.' },
+      { t: 'Las dos son heredadas, porque las dos están en el sistema.',
+        fb: 'Que algo esté en el sistema no lo hace parte del dominio; las conversiones son decisiones nuestras.' },
+      { t: 'Las dos son accidentales y se pueden eliminar por completo.',
+        fb: 'La complejidad heredada no se puede eliminar: viene del problema. Se puede ocultar.' }
     ]
   },
 
@@ -423,7 +451,7 @@ window.PREGUNTAS_MEDIAS = [
     ]
   },
 
-  // ------------------------------ Datos (1) ------------------------------
+  // ------------------------------ Datos (3) ------------------------------
   {
     id: 'M29', tema: 'Datos', caso: 'billetera', fragmento: 'transferir',
     enunciado: '<p>Durante una transferencia, los saldos de las dos cuentas ya se actualizaron y falla el <code>save</code> del Movimiento. ¿Qué debería pasar?</p>',
@@ -438,8 +466,36 @@ window.PREGUNTAS_MEDIAS = [
         fb: 'El enunciado de la práctica pide registrar el Movimiento como parte de la transferencia.' }
     ]
   },
+  {
+    id: 'M37', tema: 'Datos', caso: 'billetera', fragmento: 'transferir',
+    enunciado: '<p>Cada Movimiento tiene una cuenta origen y una cuenta destino; una cuenta tiene muchos movimientos. En la base relacional, ¿dónde conviene poner la clave foránea?</p>',
+    opciones: [
+      { t: 'En la tabla de movimientos: cada fila apunta a su cuenta origen y destino.', ok: true,
+        fb: 'En una relación uno a muchos, la FK va del lado “muchos”. Así la base garantiza que cada movimiento apunte a cuentas que existen.' },
+      { t: 'En la tabla de cuentas: una columna por cada movimiento de la cuenta.',
+        fb: 'La cantidad de movimientos crece sin límite: no se puede modelar con columnas.' },
+      { t: 'En las dos tablas a la vez, para poder navegar en ambos sentidos.',
+        fb: 'Duplicaría la relación y podría quedar inconsistente. La navegabilidad la resuelve el modelo de objetos, no una segunda FK.' },
+      { t: 'En ninguna: alcanza con guardar el alias como texto en el movimiento.',
+        fb: 'Sin FK se pierde la integridad referencial: podría quedar un movimiento apuntando a un alias que ya no existe.' }
+    ]
+  },
+  {
+    id: 'M38', tema: 'Datos', caso: 'giftcards', fragmento: 'capas',
+    enunciado: '<p>El saldo de una gift card se puede guardar como columna o calcular sumando sus consumos. ¿Qué evaluación es correcta?</p>',
+    opciones: [
+      { t: 'Guardarlo agiliza las lecturas, pero duplica un dato que hay que mantener consistente.', ok: true,
+        fb: 'Es el trade-off de desnormalizar: lecturas más rápidas a cambio de duplicación. Si se guarda, el consumo y el saldo tienen que actualizarse en la misma transacción.' },
+      { t: 'Guardarlo es siempre un error: un campo calculado nunca se persiste.',
+        fb: 'No es un error en sí: es una decisión con costos y beneficios que hay que hacer explícita.' },
+      { t: 'Calcularlo siempre es gratis, así que nunca conviene guardarlo.',
+        fb: 'Calcularlo implica leer todos los consumos en cada consulta; con mucho volumen eso tiene un costo.' },
+      { t: 'Da igual: la base de datos mantiene sincronizados los dos valores sola.',
+        fb: 'La base no sabe que el saldo depende de los consumos: mantenerlos consistentes es responsabilidad nuestra.' }
+    ]
+  },
 
-  // ----------------------- Tipos de aplicación (1) -----------------------
+  // ----------------------- Tipos de aplicación (3) -----------------------
   {
     id: 'M30', tema: 'Tipos de aplicación', caso: 'giftcards',
     enunciado: '<p>Cada proveedor quiere un tablero mensual con “cuántas gift cards se usaron por sucursal”. Comparado con “usar una gift card al pagar”, ¿cómo se clasifica?</p>',
@@ -452,6 +508,34 @@ window.PREGUNTAS_MEDIAS = [
         fb: 'Lo dispara una persona con una consulta y espera el resultado (aunque tolera más tiempo): es analítico.' },
       { t: 'Usar la gift card es Batch, porque se repite muchas veces por día.',
         fb: 'Batch lo dispara un horario y nadie espera. Al pagar, la persona espera la respuesta en el momento.' }
+    ]
+  },
+  {
+    id: 'M39', tema: 'Tipos de aplicación', caso: 'billetera',
+    enunciado: '<p>¿Qué ficha corresponde a “consultar el saldo” en la Billetera Virtual?</p>',
+    opciones: [
+      { t: 'Usuario: persona o app. Disparador: un pedido. Tiempo: menos de 1 s. Alguien espera.', ok: true,
+        fb: 'Es una operación chica, que alguien espera mirando la pantalla: ficha Web/API.' },
+      { t: 'Usuario: nadie. Disparador: un horario. Tiempo: horas. Nadie espera.',
+        fb: 'Esa es la ficha Batch, por ejemplo para generar los resúmenes mensuales de todas las cuentas.' },
+      { t: 'Usuario: otro sistema. Disparador: un mensaje. Tiempo: minutos. Nadie espera.',
+        fb: 'Esa es la ficha Worker, por ejemplo para mandar un aviso por cada transferencia recibida.' },
+      { t: 'Usuario: un analista. Disparador: una consulta enorme. Tiempo: minutos. Tolera esperar.',
+        fb: 'Esa es la ficha Analítica, por ejemplo “cuánto se transfirió por mes”.' }
+    ]
+  },
+  {
+    id: 'M40', tema: 'Tipos de aplicación', caso: 'tareas', fragmento: 'capas',
+    enunciado: '<p>Se agrega un comando <code>tareas listar --pendientes</code> para usar desde la terminal. ¿Qué tipo de aplicación es y qué se reutiliza?</p>',
+    opciones: [
+      { t: 'CLI: la usa un técnico frente a la terminal; reutiliza el Service y el Dominio.', ok: true,
+        fb: 'Es otra Presentación (otra cara) sobre el mismo núcleo, con la ficha CLI: un usuario a la vez, que espera el resultado.' },
+      { t: 'Batch: corre sin que nadie espere; necesita su propio Dominio de tareas.',
+        fb: 'Alguien la ejecuta y espera la respuesta en la terminal, y no hace falta duplicar el Dominio.' },
+      { t: 'API: la usa otro sistema; la CLI llama directo al Repository por HTTP.',
+        fb: 'La usa una persona, y el Repository no se expone por HTTP: la CLI pasa por el Service.' },
+      { t: 'Web: necesita un navegador; solo reutiliza la base de datos.',
+        fb: 'Se usa desde una terminal, y reutilizar solo la base obligaría a duplicar las reglas.' }
     ]
   },
   // ------------------------- Modelado REST (4) -------------------------
