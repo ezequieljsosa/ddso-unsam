@@ -1569,6 +1569,22 @@ window.CASOS = [
       }
     ],
     fragmentos: {
+      secuenciaMultas: [
+        'sequenceDiagram',
+        '  actor B as Bibliotecario',
+        '  participant C as PrestamoController',
+        '  participant S as PrestamoService',
+        '  participant RS as SocioRepository',
+        '  participant So as ana:Socio',
+        '  B->>+C: POST /prestamos { nroSocio: 77, codigoEjemplar: LIB-0042 }',
+        '  C->>+S: prestar(77, LIB-0042)',
+        '  S->>+RS: buscarPorNumero(77)',
+        '  RS-->>-S: ana (con una multa impaga)',
+        '  S->>+So: puedePedirPrestamo()',
+        '  So-->>-S: ?',
+        '  S-->>-C: ?',
+        '  C-->>-B: ?'
+      ].join('\n'),
       secuenciaClases: [
         'sequenceDiagram',
         '  participant S as PrestamoService',

@@ -453,7 +453,7 @@ window.PREGUNTAS_AVANZADAS = [
     ]
   },
   {
-    id: 'A23', tema: 'Web y HTTP', caso: 'biblioteca', fragmento: 'prestamo',
+    id: 'A23', tema: 'Web y HTTP', caso: 'biblioteca', fragmento: 'secuenciaMultas', fragmentoTipo: 'la secuencia de este escenario, con los signos de pregunta donde está la respuesta',
     enunciado: '<p>¿Qué cadena es coherente de punta a punta cuando se intenta prestar un libro a un socio con multas impagas?</p>',
     opciones: [
       { t: '<code>Socio</code> rechaza; el Service lanza una excepción de negocio; la Presentación responde 400.', ok: true,
