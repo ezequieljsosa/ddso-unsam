@@ -133,17 +133,43 @@ window.PREGUNTAS_MEDIAS = [
     ]
   },
   {
-    id: 'M09', tema: 'Capas', caso: 'billetera', fragmento: 'transferir',
-    enunciado: '<p>Imaginemos una versión anémica de la Billetera: <code>Cuenta</code> solo tiene getters y setters, y <code>CuentaService</code> hace “si saldo &lt; monto, error; si no, restar y sumar”. Más adelante se agrega “pagar con QR”, que también debita una cuenta. ¿Qué es lo más probable?</p>',
+    id: 'M09', tema: 'Capas', caso: 'billetera',
+    enunciado: '<p>Imaginemos una versión <strong>anémica</strong> de la Billetera: <code>Cuenta</code> solo tiene getters y setters, y la validación (cuenta activa y saldo suficiente) está escrita dentro de <code>CuentaService.transferir</code>. Ahora se agrega un caso de uso nuevo, <code>PagoQrService.pagar</code> (en amarillo), que <strong>también tiene que debitar una cuenta</strong>. ¿Qué problema de diseño es el más probable?</p>',
+    diagramaTitulo: 'Versión anémica de la Billetera, con el caso de uso nuevo resaltado',
+    diagrama: [
+      'classDiagram',
+      '  direction LR',
+      '  class CuentaService {',
+      '    <<Servicio de aplicacion>>',
+      '    +transferir(aliasOrigen, aliasDestino, monto)',
+      '  }',
+      '  class PagoQrService {',
+      '    <<Servicio de aplicacion - NUEVO>>',
+      '    +pagar(alias, comercio, monto)',
+      '  }',
+      '  class Cuenta {',
+      '    <<Dominio - anemico>>',
+      '    -saldo',
+      '    -activa',
+      '    +getSaldo()',
+      '    +setSaldo(saldo)',
+      '    +isActiva()',
+      '  }',
+      '  CuentaService --> Cuenta : lee y modifica el saldo',
+      '  PagoQrService --> Cuenta : tambien tiene que debitar',
+      '  note for CuentaService "transferir: si la cuenta no esta activa o el saldo no alcanza, error. Si no, resta y suma"',
+      '  note for PagoQrService "NUEVO: pagar con QR debita una cuenta"',
+      '  style PagoQrService fill:#f59e0b33,stroke:#fbbf24,stroke-width:2px'
+    ].join('\n'),
     opciones: [
-      { t: 'Que la validación se copie en el nuevo caso de uso y las dos versiones se desfasen.', ok: true,
-        fb: 'Redundancia: el mismo conocimiento repetido en varios Services. Con la regla en Cuenta, pagar con QR la reutiliza sin copiarla.' },
-      { t: 'Nada: la versión anémica es más fácil de extender a nuevos medios de pago.',
-        fb: 'Agregar casos de uso obliga a repetir reglas o a llamar a otro Service para reutilizarlas: cuesta más, no menos.' },
-      { t: 'Que la base de datos no pueda guardar las cuentas modificadas por el QR.',
-        fb: 'La persistencia no depende de dónde estén las reglas.' },
-      { t: 'Que haya que mover la validación al Controller del pago con QR.',
-        fb: 'Eso empeoraría las cosas: la regla quedaría atada a una Presentación.' }
+      { t: 'Que la validación se copie en <code>PagoQrService</code> y, con el tiempo, las dos copias dejen de coincidir.', ok: true,
+        fb: 'Redundancia: la regla vive en un Service y no en Cuenta, así que el caso de uso nuevo la tiene que repetir. Si la regla estuviera en Cuenta (por ejemplo, en un método debitar), PagoQrService la reutilizaría sin copiarla.' },
+      { t: 'Ninguno: un Dominio anémico se extiende más fácil, porque <code>Cuenta</code> no tiene reglas que respetar.',
+        fb: 'Que Cuenta no tenga reglas no las elimina: quedan en los Services, y cada caso de uso nuevo las tiene que repetir.' },
+      { t: 'Que la base de datos no pueda guardar las cuentas que modifica <code>PagoQrService</code>.',
+        fb: 'La persistencia no depende de dónde estén las reglas: las cuentas se guardan igual.' },
+      { t: 'Que <code>PagoQrService</code> tenga que llamar a <code>CuentaController</code> para reutilizar la validación.',
+        fb: 'Un Service no debe depender de la Presentación (sería una dependencia hacia arriba), y el Controller tampoco tiene la regla.' }
     ]
   },
   {
@@ -364,7 +390,7 @@ window.PREGUNTAS_MEDIAS = [
   },
   {
     id: 'M23', tema: 'Web y HTTP', caso: 'billetera',
-    enunciado: '<p>Para transferir se usa <code>POST /api/cuentas/transferencias</code>. Si el cliente reenvía el mismo pedido porque se le cortó la conexión, ¿qué puede pasar y por qué?</p>',
+    enunciado: '<p>Para transferir se usa <code>POST /api/transferencias</code>. Si el cliente reenvía el mismo pedido porque se le cortó la conexión, ¿qué puede pasar y por qué?</p>',
     opciones: [
       { t: 'Que se haga una segunda transferencia, porque POST no es idempotente.', ok: true,
         fb: 'Por eso hay que pensar bien qué pasa ante los reintentos en las operaciones que modifican estado.' },
@@ -529,11 +555,11 @@ window.PREGUNTAS_MEDIAS = [
     id: 'M31', tema: 'Modelado REST', caso: 'billetera', fragmento: 'transferir',
     enunciado: '<p>Para transferir dinero, ¿qué modelado REST es el adecuado y por qué?</p>',
     opciones: [
-      { t: '<code>POST /api/cuentas/transferencias</code>: crea una transferencia, que queda registrada.', ok: true,
-        fb: 'La transferencia es un recurso nuevo (genera un Movimiento): POST con los datos en el body, respuesta 201. Las reglas las aplica Cuenta.' },
+      { t: '<code>POST /api/transferencias</code>: crea una transferencia, que queda registrada.', ok: true,
+        fb: 'La transferencia es un recurso propio, que involucra a dos cuentas: va en su propia colección, sin anidarla debajo de cuentas. POST con los datos en el body y respuesta 201. Las reglas las aplica Cuenta.' },
       { t: '<code>PUT /api/cuentas/juan.perez</code> con el saldo nuevo calculado por el cliente.',
         fb: 'El cliente estaría haciendo la cuenta: la regla de negocio saldría del Dominio, nadie validaría y no quedaría ningún Movimiento.' },
-      { t: '<code>GET /api/cuentas/transferir?origen=...&destino=...&monto=1000</code>',
+      { t: '<code>GET /api/transferir?origen=...&destino=...&monto=1000</code>',
         fb: 'GET no debe modificar nada, y además tiene un verbo en la URL. Un navegador o un caché podrían repetirlo.' },
       { t: '<code>DELETE /api/cuentas/juan.perez/saldo?monto=1000</code>',
         fb: 'DELETE elimina un recurso; no sirve para expresar un movimiento de dinero.' }
@@ -569,7 +595,7 @@ window.PREGUNTAS_MEDIAS = [
   },
   {
     id: 'M34', tema: 'Modelado REST', caso: 'billetera', fragmento: 'transferir',
-    enunciado: '<p>Llega <code>POST /api/cuentas/transferencias</code> con un JSON. ¿Cuál es el recorrido correcto entre capas?</p>',
+    enunciado: '<p>Llega <code>POST /api/transferencias</code> con un JSON. ¿Cuál es el recorrido correcto entre capas?</p>',
     opciones: [
       { t: 'Controller arma el DTO → Service orquesta → Cuenta decide → Controller responde 201.', ok: true,
         fb: 'El JSON se convierte en TransferenciaRequest en la Presentación; el Service trabaja con datos simples; Cuenta aplica la regla; la respuesta vuelve como MovimientoResponse.' },
