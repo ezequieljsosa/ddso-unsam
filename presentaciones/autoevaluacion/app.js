@@ -28,7 +28,7 @@
   var CLAVE_STORAGE = 'ddso-autoevaluacion-v1';
   var LETRAS = ['A', 'B', 'C', 'D', 'E'];
   // Elegida para que la opción correcta quede repartida entre A, B, C y D en cada nivel.
-  var SAL_MEZCLA = '20:';
+  var SAL_MEZCLA = '228:';
 
   var estado = cargarEstado();
   var filtroTema = { basicas: null, medias: null, avanzadas: null };
@@ -249,9 +249,16 @@
     html += '</div><div class="enunciado">' + p.enunciado + '</div>';
     if (caso && p.fragmento) {
       var fragmento = caso.fragmentos[p.fragmento];
-      var tipo = /^\s*sequenceDiagram/.test(fragmento) ? 'la secuencia' : 'el diagrama de clases';
+      var tipo = p.fragmentoTipo || (/^\s*sequenceDiagram/.test(fragmento) ? 'la secuencia' : 'el diagrama de clases');
       html += htmlDiagrama(fragmento,
         'Para repasar: ' + tipo + ' de “' + escapar(caso.titulo) + '” (el caso completo está en el enlace de arriba)');
+    }
+    if (caso && p.tests) {
+      p.tests.forEach(function (idTest) {
+        var test = caso.tests.filter(function (t) { return t.id === idTest; })[0];
+        html += htmlDiagrama(test.objetos, 'Para repasar: diagrama de objetos del test ' + idTest +
+          ' (' + test.unidad.replace(/<[^>]+>/g, '') + ')');
+      });
     }
     if (p.diagrama) html += htmlDiagrama(p.diagrama, p.diagramaTitulo);
 
@@ -379,6 +386,11 @@
         caso.tests.map(function (t) {
           return '<tr><td>' + t.id + '</td><td>' + t.unidad + '</td><td>' + t.dado + '</td><td>' + t.cuando + '</td><td>' + t.entonces + '</td></tr>';
         }).join('') + '</tbody></table>';
+      html += '<h3>Diagramas de objetos de los tests</h3><p class="nota">Qué objetos arma cada test: la unidad bajo test, ' +
+        'sus colaboradores reales y los mocks («mock»), con lo que se les programa (<code>when</code>) y lo que se verifica (<code>verify</code>).</p>';
+      caso.tests.forEach(function (t) {
+        if (t.objetos) html += '<p class="nota"><strong>' + t.id + '</strong> · ' + t.unidad + '</p>' + htmlDiagrama(t.objetos);
+      });
     }
 
     var relacionadas = [];

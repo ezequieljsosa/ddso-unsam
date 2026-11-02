@@ -209,7 +209,7 @@ window.PREGUNTAS_AVANZADAS = [
     ]
   },
   {
-    id: 'A12', tema: 'Capas', caso: 'clubpuntos', fragmento: 'canje',
+    id: 'A12', tema: 'Capas', caso: 'clubpuntos', tests: ['CP-T1', 'CP-T3'],
     enunciado: '<p>El club decide pasar de H2 a PostgreSQL. Con el diseño del caso, ¿qué pasa con los tests CP-T1 a CP-T5?</p>',
     opciones: [
       { t: 'Hay que reescribirlos todos, porque cambia la base.',
@@ -239,7 +239,7 @@ window.PREGUNTAS_AVANZADAS = [
 
   // ---------------------------- Testing (5) ----------------------------
   {
-    id: 'A14', tema: 'Testing', caso: 'clubpuntos', fragmento: 'canje',
+    id: 'A14', tema: 'Testing', caso: 'clubpuntos', tests: ['CP-T1', 'CP-T3', 'CP-T4'],
     enunciado: '<p>Si la regla de vigencia estuviera en <code>CanjeService</code> (y <code>Socio</code> solo tuviera getters y setters), ¿cuál de los tests del caso <strong>no</strong> se podría escribir como está?</p>',
     opciones: [
       { t: 'CP-T1, que le pregunta a <code>Socio</code> cuántos puntos vigentes tiene, sin mocks.', ok: true,
@@ -253,7 +253,7 @@ window.PREGUNTAS_AVANZADAS = [
     ]
   },
   {
-    id: 'A15', tema: 'Testing', caso: 'clubpuntos', fragmento: 'canje',
+    id: 'A15', tema: 'Testing', caso: 'clubpuntos', tests: ['CP-T3'],
     enunciado: '<p>¿Cuál es la descripción correcta del test CP-T3 (premio sin stock) en términos de Arrange, Act y Assert?</p>',
     opciones: [
       { t: 'Arrange: mocks devuelven socio con puntos y premio sin stock. Act: canjear. Assert: error, y <code>verify</code> de que nunca se confirmó ni se guardó.', ok: true,
@@ -267,7 +267,7 @@ window.PREGUNTAS_AVANZADAS = [
     ]
   },
   {
-    id: 'A16', tema: 'Testing', caso: 'clubpuntos', fragmento: 'canje',
+    id: 'A16', tema: 'Testing', caso: 'clubpuntos', tests: ['CP-T2'],
     enunciado: '<p>En producción, socios con 0 puntos vigentes lograron canjear premios. CP-T2 (<code>puedeCanjear</code> devuelve <code>false</code>) pasa. Se descubre que, tras un refactor, <code>CanjeService</code> dejó de llamar a <code>puedeCanjear</code>. ¿Qué test faltaba?</p>',
     opciones: [
       { t: 'Uno del Service: socio que no puede canjear ⇒ error, y nunca se confirma ni se guarda.', ok: true,
@@ -281,7 +281,7 @@ window.PREGUNTAS_AVANZADAS = [
     ]
   },
   {
-    id: 'A17', tema: 'Testing', caso: 'biblioteca', fragmento: 'secuenciaClases',
+    id: 'A17', tema: 'Testing', caso: 'biblioteca', fragmento: 'secuenciaClases', tests: ['BI-T2', 'BI-T3', 'BI-T4'],
     enunciado: '<p>En la secuencia a nivel clases de la Biblioteca aparece el paso “<code>p9:Prestamo</code>.devolver(hoy) ⇒ Multa de 1500”. ¿Qué test lo cubre y qué tipo de test es?</p>',
     opciones: [
       { t: 'BI-T2: unitario de Dominio, sin mocks.', ok: true,
@@ -295,7 +295,29 @@ window.PREGUNTAS_AVANZADAS = [
     ]
   },
   {
-    id: 'A18', tema: 'Testing', caso: 'clubpuntos', fragmento: 'canje',
+    id: 'A18', tema: 'Testing', caso: 'clubpuntos',
+    diagramaTitulo: 'Diagrama de objetos del test de integración (profile test)',
+    diagrama: [
+      'classDiagram',
+      '  direction LR',
+      '  class test["test : CanjeIntegracionTest"] {',
+      '  }',
+      '  class s["s : CanjeService"] {',
+      '  }',
+      '  note for s "Real, creado por Spring con el profile test"',
+      '  class repoSocios["repoSocios : SocioRepositoryEnMemoria"] {',
+      '  }',
+      '  class repoPremios["repoPremios : PremioRepositoryEnMemoria"] {',
+      '  }',
+      '  class comercio["comercio : ComercioClientFalso"] {',
+      '    siempre confirma',
+      '  }',
+      '  note for comercio "Reemplaza al client real con el profile test"',
+      '  test --> s : canjear(1001, TERMO)',
+      '  s --> repoSocios',
+      '  s --> repoPremios',
+      '  s --> comercio'
+    ].join('\n'),
     enunciado: '<p>Se arma un test que levanta toda la aplicación con el profile <code>test</code>: repositorios en memoria y un <code>ComercioClient</code> <strong>falso</strong> que siempre confirma. ¿Por qué también hace falta reemplazar el client?</p>',
     opciones: [
       { t: 'Porque el client real llamaría al comercio: el test sería lento, frágil y con efectos reales.', ok: true,
@@ -353,7 +375,7 @@ window.PREGUNTAS_AVANZADAS = [
     ]
   },
   {
-    id: 'A35', tema: 'Diseño y principios', caso: 'clubpuntos', fragmento: 'canje',
+    id: 'A35', tema: 'Diseño y principios', caso: 'clubpuntos', tests: ['CP-T1', 'CP-T2'],
     enunciado: '<p>El equipo nota que los tests CP-T1 y CP-T2 se escriben en pocas líneas, sin mocks ni base de datos. ¿Qué dice eso del diseño?</p>',
     opciones: [
       { t: 'Que <code>Socio</code> es cohesivo y está desacoplado de la infraestructura.', ok: true,

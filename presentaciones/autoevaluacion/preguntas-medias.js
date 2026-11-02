@@ -205,7 +205,7 @@ window.PREGUNTAS_MEDIAS = [
 
   // ---------------------------- Testing (5) ----------------------------
   {
-    id: 'M14', tema: 'Testing', caso: 'giftcards', fragmento: 'capas',
+    id: 'M14', tema: 'Testing', caso: 'giftcards', tests: ['GC-T1'],
     enunciado: '<p>El test GC-T1 (descontar 3500 de una gift card con saldo 8000) no usa ningún mock. ¿Por qué no hace falta?</p>',
     opciones: [
       { t: 'Porque <code>GiftCard</code> no depende de repositorios ni de clients.', ok: true,
@@ -219,7 +219,7 @@ window.PREGUNTAS_MEDIAS = [
     ]
   },
   {
-    id: 'M15', tema: 'Testing', caso: 'giftcards', fragmento: 'capas',
+    id: 'M15', tema: 'Testing', caso: 'giftcards', tests: ['GC-T4'],
     enunciado: '<p>En GC-T4 (saldo insuficiente) se verifica que <strong>nunca</strong> se llamó a <code>confirmarConsumo</code> ni a <code>guardar</code>. ¿Qué está comprobando ese <code>verify(..., never())</code>?</p>',
     opciones: [
       { t: 'Que, si la regla rechaza el uso, no se avisa al proveedor ni se guarda nada.', ok: true,
@@ -233,7 +233,7 @@ window.PREGUNTAS_MEDIAS = [
     ]
   },
   {
-    id: 'M16', tema: 'Testing', caso: 'billetera', fragmento: 'repositorios',
+    id: 'M16', tema: 'Testing', caso: 'billetera', tests: ['BV-T6'],
     enunciado: '<p>El test BV-T6 levanta la aplicación completa con el profile <code>test</code> (repositorio en memoria). ¿Qué agrega respecto de los tests unitarios con mocks?</p>',
     opciones: [
       { t: 'Prueba que las piezas reales funcionan juntas, sin una base de datos real.', ok: true,
@@ -247,7 +247,7 @@ window.PREGUNTAS_MEDIAS = [
     ]
   },
   {
-    id: 'M17', tema: 'Testing', caso: 'billetera', fragmento: 'transferir',
+    id: 'M17', tema: 'Testing', caso: 'billetera', tests: ['BV-T4'],
     enunciado: '<p>El test BV-T4 (“el repositorio no encuentra <code>no.existe</code> ⇒ <code>CuentaNoEncontradaException</code>”) prueba un paso puntual del diseño. ¿Cuál?</p>',
     opciones: [
       { t: 'El caso “no encontrada” de la búsqueda en <code>CuentaService</code>.', ok: true,
@@ -261,7 +261,7 @@ window.PREGUNTAS_MEDIAS = [
     ]
   },
   {
-    id: 'M18', tema: 'Testing', caso: 'giftcards', fragmento: 'capas',
+    id: 'M18', tema: 'Testing', caso: 'giftcards', tests: ['GC-T1', 'GC-T2', 'GC-T4'],
     enunciado: '<p>Un cambio introduce un error: <code>descontar(monto)</code> ahora resta el monto <strong>dos veces</strong>. ¿Qué test del caso lo detecta?</p>',
     opciones: [
       { t: 'GC-T1: espera que 8000 − 3500 deje el saldo en 4500.', ok: true,
@@ -391,7 +391,7 @@ window.PREGUNTAS_MEDIAS = [
     ]
   },
 
-  // ------------------------------ Spring (2) ------------------------------
+  // ------------------------------ Spring (1) ------------------------------
   {
     id: 'M25', tema: 'Spring', caso: 'tareas', fragmento: 'capas',
     enunciado: '<p><code>TareaRepository</code> es una interfaz que extiende <code>JpaRepository</code> y no tiene ninguna clase que la implemente a mano. ¿Qué pasa?</p>',
@@ -404,20 +404,6 @@ window.PREGUNTAS_MEDIAS = [
         fb: 'Manejar Tareas no la hace Dominio: su responsabilidad es guardarlas y buscarlas.' },
       { t: 'El Service tiene que escribir el SQL que la interfaz no implementa.',
         fb: 'No hace falta SQL para el CRUD básico, y en todo caso no le correspondería al Service.' }
-    ]
-  },
-  {
-    id: 'M26', tema: 'Spring', caso: 'giftcards', fragmento: 'capas',
-    enunciado: '<p>Si <code>GiftCardService</code> hiciera <code>new GiftCardRepositoryJpa()</code> en su interior, en lugar de recibir el repositorio por constructor, ¿qué se pierde?</p>',
-    opciones: [
-      { t: 'Poder pasarle un mock en los tests y elegir la implementación por profile.', ok: true,
-        fb: 'El Service quedaría atado a una implementación concreta: menos testeable y menos flexible.' },
-      { t: 'Nada: crear la dependencia adentro o recibirla es equivalente.',
-        fb: 'No es equivalente: quién crea la dependencia define quién puede reemplazarla.' },
-      { t: 'La posibilidad de usar <code>@Entity</code> en la clase GiftCard.',
-        fb: 'Una cosa no tiene que ver con la otra.' },
-      { t: 'Que el Controller pueda seguir llamando al Service.',
-        fb: 'El Controller lo podría seguir llamando; el problema está entre el Service y su repositorio.' }
     ]
   },
 
