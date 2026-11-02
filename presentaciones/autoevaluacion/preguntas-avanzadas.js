@@ -481,21 +481,7 @@ window.PREGUNTAS_AVANZADAS = [
     ]
   },
 
-  // ------------------------------ Spring (2) ------------------------------
-  {
-    id: 'A25', tema: 'Spring', caso: 'biblioteca', fragmento: 'entradas',
-    enunciado: '<p><code>NotificadorClient</code> es una interfaz con dos implementaciones: una que envía por SMTP (<code>@Profile("!test")</code>) y otra que solo guarda los mails en una lista (<code>@Profile("test")</code>). <code>PrestamoService</code> la recibe por constructor. ¿Qué afirmación es correcta?</p>',
-    opciones: [
-      { t: 'Con el profile test, Spring inyecta la versión en lista y el Service no cambia.', ok: true,
-        fb: 'Une inyección por constructor, @Profile y el Client como Fuente de datos intercambiable.' },
-      { t: 'El Service tiene que preguntar qué profile está activo y crear la implementación que corresponde.',
-        fb: 'Esa decisión la toma Spring. El Service solo conoce la interfaz.' },
-      { t: 'Con <code>@Profile("test")</code> ya no hacen falta los tests unitarios con mocks del Service.',
-        fb: 'Se complementan: el profile sirve para levantar la app completa; el mock, para aislar una unidad.' },
-      { t: 'En producción se usan las dos implementaciones a la vez: una envía y la otra registra.',
-        fb: '"!test" significa “cuando test no está activo”: en producción solo existe la de SMTP.' }
-    ]
-  },
+  // ------------------------------ Spring (1) ------------------------------
   {
     id: 'A26', tema: 'Spring', caso: 'clubpuntos', fragmento: 'canje',
     enunciado: '<p>Un compañero dice: “<code>Socio</code> tiene <code>@Entity</code>, así que ya es parte del Dominio y está bien diseñado”. ¿Qué le responderías?</p>',
