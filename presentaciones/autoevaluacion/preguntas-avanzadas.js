@@ -636,7 +636,7 @@ window.PREGUNTAS_AVANZADAS = [
     ]
   },
   {
-    id: 'A39', tema: 'Tipos de aplicación', caso: 'biblioteca', fragmento: 'entradas',
+    id: 'A39', tema: 'Tipos de aplicación', caso: 'biblioteca', fragmento: 'c4', fragmentoTipo: 'el diagrama C4 (contexto y despliegue)',
     enunciado: '<p>¿Por qué el aviso por mail se manda con un Worker que consume mensajes, en lugar de enviarlo dentro de <code>POST /prestamos</code>?</p>',
     opciones: [
       { t: 'Nadie espera el mail: el préstamo responde rápido y, si el mail falla, se reintenta aparte.', ok: true,
