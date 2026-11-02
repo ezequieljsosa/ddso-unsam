@@ -261,6 +261,7 @@
       });
     }
     if (p.diagrama) html += htmlDiagrama(p.diagrama, p.diagramaTitulo);
+    (p.diagramas || []).forEach(function (d) { html += htmlDiagrama(d.codigo, d.titulo); });
 
     html += '<ul class="opciones">';
     ordenOpciones(p).forEach(function (indice, posicion) {
