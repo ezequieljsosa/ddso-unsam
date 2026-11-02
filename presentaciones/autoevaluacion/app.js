@@ -28,7 +28,7 @@
   var CLAVE_STORAGE = 'ddso-autoevaluacion-v1';
   var LETRAS = ['A', 'B', 'C', 'D', 'E'];
   // Elegida para que la opción correcta quede repartida entre A, B, C y D en cada nivel.
-  var SAL_MEZCLA = '2272:';
+  var SAL_MEZCLA = '1842:';
 
   var estado = cargarEstado();
   var filtroTema = { basicas: null, medias: null, avanzadas: null };
@@ -131,7 +131,11 @@
       nodo.removeAttribute('data-pendiente');
       var codigo = nodo.querySelector('pre').textContent;
       var id = 'diagrama-' + (++contadorDiagramas);
-      window.mermaid.render(id, codigo).then(function (res) {
+      // Mermaid mide el texto al dibujar: si la fuente todavía no cargó, corta las etiquetas.
+      var fuentes = document.fonts ? document.fonts.ready : Promise.resolve();
+      fuentes.then(function () {
+        return window.mermaid.render(id, codigo);
+      }).then(function (res) {
         nodo.innerHTML = res.svg;
       }).catch(function (err) {
         nodo.innerHTML = '<div class="diagrama-error">No se pudo dibujar el diagrama:\n' +
@@ -235,13 +239,18 @@
       '<span class="pregunta-numero">' + numero + '.</span>' +
       '<span class="badge">' + escapar(p.tema) + '</span>';
     if (caso) {
-      html += '<span class="badge ambar">Caso: ' + escapar(caso.titulo) + '</span>' +
+      html += '<a class="badge ambar enlace" href="#casos/' + caso.id + '" data-accion="ver-caso" title="Ver el caso">Caso: ' +
+        escapar(caso.titulo) + ' →</a>' +
         '<span class="acciones-caso">' +
         '<button class="boton" data-accion="ver-caso">📘 Ver caso</button>' +
         '<a class="boton secundario" href="#casos/' + caso.id + '" target="_blank" rel="noopener" title="Abrir el caso en otra pestaña del navegador">↗</a>' +
         '</span>';
     }
     html += '</div><div class="enunciado">' + p.enunciado + '</div>';
+    if (caso && p.fragmento) {
+      html += htmlDiagrama(caso.fragmentos[p.fragmento],
+        'Extracto del diagrama de clases de “' + escapar(caso.titulo) + '” (el caso completo está en el enlace de arriba)');
+    }
     if (p.diagrama) html += htmlDiagrama(p.diagrama, p.diagramaTitulo);
 
     html += '<ul class="opciones">';
@@ -324,13 +333,13 @@
       });
     }
 
-    var botonCaso = tarjeta.querySelector('[data-accion="ver-caso"]');
-    if (botonCaso) {
-      botonCaso.addEventListener('click', function () {
+    tarjeta.querySelectorAll('[data-accion="ver-caso"]').forEach(function (botonCaso) {
+      botonCaso.addEventListener('click', function (evento) {
+        evento.preventDefault();
         volverA = { vista: clave, pregunta: p.id, numero: numero };
         location.hash = 'casos/' + p.caso;
       });
-    }
+    });
   }
 
   // ---------- Vista de casos ----------

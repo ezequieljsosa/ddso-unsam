@@ -4,7 +4,7 @@
 window.PREGUNTAS_MEDIAS = [
   // ---------------------------- Capas (13) ----------------------------
   {
-    id: 'M01', tema: 'Capas', caso: 'giftcards',
+    id: 'M01', tema: 'Capas', caso: 'giftcards', fragmento: 'capas',
     enunciado: '<p>En el diagrama de clases de Gift Cards, ¿en qué capa está <code>ProveedorGiftCardClient</code> y por qué?</p>',
     opciones: [
       { t: 'En la Fuente de datos: aísla la comunicación con el proveedor.', ok: true,
@@ -18,7 +18,7 @@ window.PREGUNTAS_MEDIAS = [
     ]
   },
   {
-    id: 'M02', tema: 'Capas', caso: 'giftcards',
+    id: 'M02', tema: 'Capas', caso: 'giftcards', fragmento: 'capas',
     enunciado: '<p>Mirando la secuencia a nivel clases de Gift Cards, ¿quién <strong>decide</strong> si la gift card puede usarse para pagar $3.500?</p>',
     opciones: [
       { t: 'El objeto <code>gf1:GiftCard</code>, con <code>puedeUsarse(3500)</code>.', ok: true,
@@ -32,7 +32,7 @@ window.PREGUNTAS_MEDIAS = [
     ]
   },
   {
-    id: 'M03', tema: 'Capas', caso: 'giftcards',
+    id: 'M03', tema: 'Capas', caso: 'giftcards', fragmento: 'capas',
     enunciado: '<p>El proveedor de gift cards anuncia que deja su API REST y ahora hay que avisarle los consumos a través de una cola de mensajes. Con el diseño del caso, ¿qué debería cambiar?</p>',
     opciones: [
       { t: 'Solo <code>ProveedorGiftCardClient</code> (Fuente de datos).', ok: true,
@@ -46,7 +46,7 @@ window.PREGUNTAS_MEDIAS = [
     ]
   },
   {
-    id: 'M04', tema: 'Capas', caso: 'billetera',
+    id: 'M04', tema: 'Capas', caso: 'billetera', fragmento: 'transferir',
     enunciado: '<p>En la Billetera Virtual, la regla “no se puede transferir desde ni hacia una cuenta inactiva” está en <code>Cuenta.transferir</code>. ¿Es una buena ubicación?</p>',
     opciones: [
       { t: 'Sí: es una regla de negocio y está en el Dominio.', ok: true,
@@ -60,7 +60,7 @@ window.PREGUNTAS_MEDIAS = [
     ]
   },
   {
-    id: 'M05', tema: 'Capas', caso: 'billetera',
+    id: 'M05', tema: 'Capas', caso: 'billetera', fragmento: 'transferir',
     enunciado: '<p>Según las secuencias de la Billetera, ¿qué hace <code>CuentaService.transferir</code>?</p>',
     opciones: [
       { t: 'Busca las cuentas, le delega la regla a la cuenta origen y guarda todo junto.', ok: true,
@@ -74,7 +74,7 @@ window.PREGUNTAS_MEDIAS = [
     ]
   },
   {
-    id: 'M06', tema: 'Capas', caso: 'billetera',
+    id: 'M06', tema: 'Capas', caso: 'billetera', fragmento: 'transferir',
     enunciado: '<p>¿Por qué el <code>CuentaController</code> devuelve un <code>MovimientoResponse</code> (DTO) en lugar de la entidad <code>Movimiento</code>?</p>',
     opciones: [
       { t: 'Para desacoplar la forma de la respuesta del modelo de Dominio.', ok: true,
@@ -88,7 +88,7 @@ window.PREGUNTAS_MEDIAS = [
     ]
   },
   {
-    id: 'M07', tema: 'Capas', caso: 'billetera',
+    id: 'M07', tema: 'Capas', caso: 'billetera', fragmento: 'transferir',
     enunciado: '<p><code>CuentaService.transferir</code> recibe <code>(aliasOrigen, aliasDestino, monto)</code> y no el pedido HTTP completo. ¿Qué ganamos con eso?</p>',
     opciones: [
       { t: 'El Service no depende de HTTP: se reutiliza y se testea sin servidor.', ok: true,
@@ -110,13 +110,16 @@ window.PREGUNTAS_MEDIAS = [
       '  participant C as GiftCardController',
       '  participant R as GiftCardRepository',
       '  participant G as "gf1:GiftCard"',
-      '  U->>C: POST /giftcards/CN-7K2P/usos { monto: 3500 }',
-      '  C->>R: buscarPorCodigo(CN-7K2P)',
-      '  R-->>C: gf1',
-      '  C->>G: puedeUsarse(3500)',
-      '  C->>G: descontar(3500)',
-      '  C->>R: guardar(gf1)',
-      '  C-->>U: 200 OK'
+      '  U->>+C: POST /giftcards/CN-7K2P/usos { monto: 3500 }',
+      '  C->>+R: buscarPorCodigo(CN-7K2P)',
+      '  R-->>-C: gf1',
+      '  C->>+G: puedeUsarse(3500)',
+      '  G-->>-C: true',
+      '  C->>+G: descontar(3500)',
+      '  G-->>-C: ok',
+      '  C->>+R: guardar(gf1)',
+      '  R-->>-C: ok',
+      '  C-->>-U: 200 OK'
     ].join('\n'),
     opciones: [
       { t: 'Saltea al Service: el caso de uso queda atado a HTTP y sin transacción.', ok: true,
@@ -130,7 +133,7 @@ window.PREGUNTAS_MEDIAS = [
     ]
   },
   {
-    id: 'M09', tema: 'Capas', caso: 'billetera',
+    id: 'M09', tema: 'Capas', caso: 'billetera', fragmento: 'transferir',
     enunciado: '<p>Imaginemos una versión anémica de la Billetera: <code>Cuenta</code> solo tiene getters y setters, y <code>CuentaService</code> hace “si saldo &lt; monto, error; si no, restar y sumar”. Más adelante se agrega “pagar con QR”, que también debita una cuenta. ¿Qué es lo más probable?</p>',
     opciones: [
       { t: 'Que la validación se copie en el nuevo caso de uso y las dos versiones se desfasen.', ok: true,
@@ -144,7 +147,7 @@ window.PREGUNTAS_MEDIAS = [
     ]
   },
   {
-    id: 'M10', tema: 'Capas', caso: 'billetera',
+    id: 'M10', tema: 'Capas', caso: 'billetera', fragmento: 'transferir',
     enunciado: '<p>Cuando un alias no existe, el Service lanza <code>CuentaNoEncontradaException</code> y el cliente recibe un <code>404</code>. ¿Quién hace esa traducción y por qué está bien ubicada?</p>',
     opciones: [
       { t: 'El manejador global de errores, porque HTTP es asunto de la Presentación.', ok: true,
@@ -158,7 +161,7 @@ window.PREGUNTAS_MEDIAS = [
     ]
   },
   {
-    id: 'M11', tema: 'Capas', caso: 'tareas',
+    id: 'M11', tema: 'Capas', caso: 'tareas', fragmento: 'capas',
     enunciado: '<p>En la secuencia de “crear una tarea”, ¿qué afirmación es correcta?</p>',
     opciones: [
       { t: 'Cada capa habla solo con la siguiente.', ok: true,
@@ -172,7 +175,7 @@ window.PREGUNTAS_MEDIAS = [
     ]
   },
   {
-    id: 'M12', tema: 'Capas', caso: 'billetera',
+    id: 'M12', tema: 'Capas', caso: 'billetera', fragmento: 'repositorios',
     enunciado: '<p>En la Billetera, <code>CuentaRepository</code> es una interfaz con dos implementaciones (JPA y en memoria). Al cambiar el profile de <code>local</code> a <code>test</code>, ¿qué clases hay que modificar?</p>',
     opciones: [
       { t: '<code>CuentaService</code>, para que cree la versión en memoria.',
@@ -186,7 +189,7 @@ window.PREGUNTAS_MEDIAS = [
     ]
   },
   {
-    id: 'M13', tema: 'Capas', caso: 'giftcards',
+    id: 'M13', tema: 'Capas', caso: 'giftcards', fragmento: 'capas',
     enunciado: '<p>En la secuencia de Gift Cards, el Service pregunta <code>puedeUsarse(3500)</code> <strong>antes</strong> de llamar a <code>confirmarConsumo</code> en el proveedor. ¿Por qué importa ese orden?</p>',
     opciones: [
       { t: 'Para no confirmarle al proveedor un consumo que el Dominio rechazaría.', ok: true,
@@ -202,7 +205,7 @@ window.PREGUNTAS_MEDIAS = [
 
   // ---------------------------- Testing (5) ----------------------------
   {
-    id: 'M14', tema: 'Testing', caso: 'giftcards',
+    id: 'M14', tema: 'Testing', caso: 'giftcards', fragmento: 'capas',
     enunciado: '<p>El test GC-T1 (descontar 3500 de una gift card con saldo 8000) no usa ningún mock. ¿Por qué no hace falta?</p>',
     opciones: [
       { t: 'Porque <code>GiftCard</code> no depende de repositorios ni de clients.', ok: true,
@@ -216,7 +219,7 @@ window.PREGUNTAS_MEDIAS = [
     ]
   },
   {
-    id: 'M15', tema: 'Testing', caso: 'giftcards',
+    id: 'M15', tema: 'Testing', caso: 'giftcards', fragmento: 'capas',
     enunciado: '<p>En GC-T4 (saldo insuficiente) se verifica que <strong>nunca</strong> se llamó a <code>confirmarConsumo</code> ni a <code>guardar</code>. ¿Qué está comprobando ese <code>verify(..., never())</code>?</p>',
     opciones: [
       { t: 'Que, si la regla rechaza el uso, no se avisa al proveedor ni se guarda nada.', ok: true,
@@ -230,7 +233,7 @@ window.PREGUNTAS_MEDIAS = [
     ]
   },
   {
-    id: 'M16', tema: 'Testing', caso: 'billetera',
+    id: 'M16', tema: 'Testing', caso: 'billetera', fragmento: 'repositorios',
     enunciado: '<p>El test BV-T6 levanta la aplicación completa con el profile <code>test</code> (repositorio en memoria). ¿Qué agrega respecto de los tests unitarios con mocks?</p>',
     opciones: [
       { t: 'Prueba que las piezas reales funcionan juntas, sin una base de datos real.', ok: true,
@@ -244,7 +247,7 @@ window.PREGUNTAS_MEDIAS = [
     ]
   },
   {
-    id: 'M17', tema: 'Testing', caso: 'billetera',
+    id: 'M17', tema: 'Testing', caso: 'billetera', fragmento: 'transferir',
     enunciado: '<p>El test BV-T4 (“el repositorio no encuentra <code>no.existe</code> ⇒ <code>CuentaNoEncontradaException</code>”) prueba un paso puntual del diseño. ¿Cuál?</p>',
     opciones: [
       { t: 'El caso “no encontrada” de la búsqueda en <code>CuentaService</code>.', ok: true,
@@ -258,7 +261,7 @@ window.PREGUNTAS_MEDIAS = [
     ]
   },
   {
-    id: 'M18', tema: 'Testing', caso: 'giftcards',
+    id: 'M18', tema: 'Testing', caso: 'giftcards', fragmento: 'capas',
     enunciado: '<p>Un cambio introduce un error: <code>descontar(monto)</code> ahora resta el monto <strong>dos veces</strong>. ¿Qué test del caso lo detecta?</p>',
     opciones: [
       { t: 'GC-T1: espera que 8000 − 3500 deje el saldo en 4500.', ok: true,
@@ -274,7 +277,7 @@ window.PREGUNTAS_MEDIAS = [
 
   // ----------------------- Diseño y principios (3) -----------------------
   {
-    id: 'M19', tema: 'Diseño y principios', caso: 'giftcards',
+    id: 'M19', tema: 'Diseño y principios', caso: 'giftcards', fragmento: 'capas',
     enunciado: '<p>Supongamos que <code>GiftCardService</code>, además de orquestar el uso, arma el JSON de la respuesta y escribe a mano el SQL para guardar la tarjeta. ¿Qué principio se ve afectado y por qué?</p>',
     opciones: [
       { t: 'SRP: la clase tiene varios motivos para cambiar.', ok: true,
@@ -288,7 +291,7 @@ window.PREGUNTAS_MEDIAS = [
     ]
   },
   {
-    id: 'M20', tema: 'Diseño y principios', caso: 'giftcards',
+    id: 'M20', tema: 'Diseño y principios', caso: 'giftcards', fragmento: 'capas',
     enunciado: '<p>Otra propuesta: que <code>GiftCard.descontar(monto)</code> llame directamente a <code>ProveedorGiftCardClient</code> para confirmar el consumo. ¿Qué consecuencia tiene?</p>',
     opciones: [
       { t: 'Acopla el Dominio a la infraestructura y complica testear <code>descontar</code>.', ok: true,
@@ -362,7 +365,7 @@ window.PREGUNTAS_MEDIAS = [
 
   // ------------------------------ Spring (2) ------------------------------
   {
-    id: 'M25', tema: 'Spring', caso: 'tareas',
+    id: 'M25', tema: 'Spring', caso: 'tareas', fragmento: 'capas',
     enunciado: '<p><code>TareaRepository</code> es una interfaz que extiende <code>JpaRepository</code> y no tiene ninguna clase que la implemente a mano. ¿Qué pasa?</p>',
     opciones: [
       { t: 'Es Fuente de datos y Spring Data genera la implementación al arrancar.', ok: true,
@@ -376,7 +379,7 @@ window.PREGUNTAS_MEDIAS = [
     ]
   },
   {
-    id: 'M26', tema: 'Spring', caso: 'giftcards',
+    id: 'M26', tema: 'Spring', caso: 'giftcards', fragmento: 'capas',
     enunciado: '<p>Si <code>GiftCardService</code> hiciera <code>new GiftCardRepositoryJpa()</code> en su interior, en lugar de recibir el repositorio por constructor, ¿qué se pierde?</p>',
     opciones: [
       { t: 'Poder pasarle un mock en los tests y elegir la implementación por profile.', ok: true,
@@ -392,7 +395,7 @@ window.PREGUNTAS_MEDIAS = [
 
   // ---------------------- Presentación y MVC (2) ----------------------
   {
-    id: 'M27', tema: 'Presentación y MVC', caso: 'tareas',
+    id: 'M27', tema: 'Presentación y MVC', caso: 'tareas', fragmento: 'capas',
     enunciado: '<p>En Tareas, <code>TareaWebController</code> devuelve una página HTML y <code>TareaController</code> devuelve JSON; ambos usan <code>TareaService</code>. ¿Qué cambia entre una y otra forma de mostrar las tareas?</p>',
     opciones: [
       { t: 'Solo la Presentación; el Service y el Dominio son los mismos.', ok: true,
@@ -422,7 +425,7 @@ window.PREGUNTAS_MEDIAS = [
 
   // ------------------------------ Datos (1) ------------------------------
   {
-    id: 'M29', tema: 'Datos', caso: 'billetera',
+    id: 'M29', tema: 'Datos', caso: 'billetera', fragmento: 'transferir',
     enunciado: '<p>Durante una transferencia, los saldos de las dos cuentas ya se actualizaron y falla el <code>save</code> del Movimiento. ¿Qué debería pasar?</p>',
     opciones: [
       { t: 'Se revierte toda la transacción y los saldos vuelven a como estaban.', ok: true,
@@ -449,6 +452,63 @@ window.PREGUNTAS_MEDIAS = [
         fb: 'Lo dispara una persona con una consulta y espera el resultado (aunque tolera más tiempo): es analítico.' },
       { t: 'Usar la gift card es Batch, porque se repite muchas veces por día.',
         fb: 'Batch lo dispara un horario y nadie espera. Al pagar, la persona espera la respuesta en el momento.' }
+    ]
+  },
+  // ------------------------- Modelado REST (4) -------------------------
+  {
+    id: 'M31', tema: 'Modelado REST', caso: 'billetera', fragmento: 'transferir',
+    enunciado: '<p>Para transferir dinero, ¿qué modelado REST es el adecuado y por qué?</p>',
+    opciones: [
+      { t: '<code>POST /api/cuentas/transferencias</code>: crea una transferencia, que queda registrada.', ok: true,
+        fb: 'La transferencia es un recurso nuevo (genera un Movimiento): POST con los datos en el body, respuesta 201. Las reglas las aplica Cuenta.' },
+      { t: '<code>PUT /api/cuentas/juan.perez</code> con el saldo nuevo calculado por el cliente.',
+        fb: 'El cliente estaría haciendo la cuenta: la regla de negocio saldría del Dominio, nadie validaría y no quedaría ningún Movimiento.' },
+      { t: '<code>GET /api/cuentas/transferir?origen=...&destino=...&monto=1000</code>',
+        fb: 'GET no debe modificar nada, y además tiene un verbo en la URL. Un navegador o un caché podrían repetirlo.' },
+      { t: '<code>DELETE /api/cuentas/juan.perez/saldo?monto=1000</code>',
+        fb: 'DELETE elimina un recurso; no sirve para expresar un movimiento de dinero.' }
+    ]
+  },
+  {
+    id: 'M32', tema: 'Modelado REST', caso: 'giftcards',
+    enunciado: '<p>Se quiere consultar las gift cards del usuario <code>u-42</code>. ¿Qué pedido sigue mejor el estilo REST?</p>',
+    opciones: [
+      { t: '<code>GET /usuarios/u-42/giftcards</code>', ok: true,
+        fb: 'Las gift cards del usuario son una colección que depende de él (sub-recurso). Es una lectura: GET.' },
+      { t: '<code>POST /usuarios/u-42/giftcards</code>',
+        fb: 'Sobre esa colección, POST crearía una gift card nueva para el usuario.' },
+      { t: '<code>GET /getGiftCardsDeUsuario?id=u-42</code>',
+        fb: 'El verbo en la URL duplica lo que ya dice el método. En REST la URL nombra recursos.' },
+      { t: '<code>DELETE /usuarios/u-42</code>',
+        fb: 'Eliminaría al usuario.' }
+    ]
+  },
+  {
+    id: 'M33', tema: 'Modelado REST', caso: 'tareas', fragmento: 'capas',
+    enunciado: '<p>Se quiere marcar como completada la tarea 7, sin cambiar su título. ¿Qué pedido corresponde?</p>',
+    opciones: [
+      { t: '<code>PATCH /tareas/7</code> con <code>{ "completada": true }</code>', ok: true,
+        fb: 'PATCH modifica parcialmente un recurso existente: solo cambia lo que viaja en el body.' },
+      { t: '<code>PUT /tareas/7</code> con <code>{ "completada": true }</code>',
+        fb: 'PUT reemplaza el recurso completo: la tarea quedaría sin título, porque no viajó en el body.' },
+      { t: '<code>POST /tareas</code> con <code>{ "id": 7, "completada": true }</code>',
+        fb: 'POST sobre la colección crea una tarea nueva; no modifica la 7.' },
+      { t: '<code>GET /tareas/7/completar</code>',
+        fb: 'GET no debería modificar nada en el servidor.' }
+    ]
+  },
+  {
+    id: 'M34', tema: 'Modelado REST', caso: 'billetera', fragmento: 'transferir',
+    enunciado: '<p>Llega <code>POST /api/cuentas/transferencias</code> con un JSON. ¿Cuál es el recorrido correcto entre capas?</p>',
+    opciones: [
+      { t: 'Controller arma el DTO → Service orquesta → Cuenta decide → Controller responde 201.', ok: true,
+        fb: 'El JSON se convierte en TransferenciaRequest en la Presentación; el Service trabaja con datos simples; Cuenta aplica la regla; la respuesta vuelve como MovimientoResponse.' },
+      { t: 'Controller le pasa el JSON tal cual a <code>Cuenta</code>, que lo interpreta y decide.',
+        fb: 'El Dominio quedaría atado al formato del pedido HTTP. Interpretar JSON es tarea de la Presentación.' },
+      { t: 'Controller le pasa el DTO al Repository, que lo guarda como Movimiento.',
+        fb: 'Saltea al Service y al Dominio: nadie valida saldo ni cuentas activas.' },
+      { t: 'Service arma la respuesta HTTP con su código y se la devuelve al Controller.',
+        fb: 'El Service no conoce HTTP: devuelve un DTO o lanza una excepción, y la Presentación elige el código.' }
     ]
   }
 ];

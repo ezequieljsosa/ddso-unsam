@@ -4,7 +4,7 @@
 window.PREGUNTAS_AVANZADAS = [
   // ---------------------------- Capas (13) ----------------------------
   {
-    id: 'A01', tema: 'Capas', caso: 'clubpuntos',
+    id: 'A01', tema: 'Capas', caso: 'clubpuntos', fragmento: 'canje',
     enunciado: '<p>Un desarrollador implementa la regla de vigencia (“solo cuentan los puntos de los últimos 12 meses”) dentro de <code>CanjeService</code>, recorriendo los movimientos del socio. Después, el proceso de vencimiento nocturno necesita la misma regla. ¿Qué evaluación es la más completa?</p>',
     opciones: [
       { t: 'Es un Dominio anémico: la regla se duplica y solo se testea con mocks; va en <code>Socio</code>.', ok: true,
@@ -18,7 +18,7 @@ window.PREGUNTAS_AVANZADAS = [
     ]
   },
   {
-    id: 'A02', tema: 'Capas', caso: 'clubpuntos',
+    id: 'A02', tema: 'Capas', caso: 'clubpuntos', fragmento: 'canje',
     enunciado: '<p>Durante un canje, el sistema del comercio no responde y <code>ComercioClient</code> lanza un error. Según las reglas del caso (“si el comercio no confirma, el socio conserva sus puntos”), ¿qué diseño lo garantiza?</p>',
     opciones: [
       { t: 'Una sola transacción en el Service, que guarda recién después de la confirmación.', ok: true,
@@ -66,7 +66,7 @@ window.PREGUNTAS_AVANZADAS = [
     ]
   },
   {
-    id: 'A04', tema: 'Capas', caso: 'clubpuntos',
+    id: 'A04', tema: 'Capas', caso: 'clubpuntos', fragmento: 'capas',
     enunciado: '<p>Para “ahorrarse” el DTO, alguien propone que <code>POST /canjes</code> devuelva directamente la entidad <code>Socio</code>, con toda su lista de <code>MovimientoPuntos</code>. ¿Qué consecuencias tiene?</p>',
     opciones: [
       { t: 'Acopla la API al modelo, expone datos internos y carga todos los movimientos.', ok: true,
@@ -89,15 +89,16 @@ window.PREGUNTAS_AVANZADAS = [
       '  participant RS as SocioRepository',
       '  participant RE as EjemplarRepository',
       '  participant RP as PrestamoRepository',
-      '  B->>C: POST /prestamos { nroSocio: 77, codigoEjemplar: LIB-0042 }',
-      '  C->>RS: buscarPorNumero(77)',
-      '  RS-->>C: socio',
+      '  B->>+C: POST /prestamos { nroSocio: 77, codigoEjemplar: LIB-0042 }',
+      '  C->>+RS: buscarPorNumero(77)',
+      '  RS-->>-C: socio',
       '  Note over C: si socio.getMultas() no esta vacio, responde 400',
       '  Note over C: si socio.getPrestamos().size() es 3 o mas, responde 400',
-      '  C->>RE: buscarPorCodigo(LIB-0042)',
-      '  RE-->>C: ejemplar',
-      '  C->>RP: guardar(new Prestamo(...))',
-      '  C-->>B: 201 Created'
+      '  C->>+RE: buscarPorCodigo(LIB-0042)',
+      '  RE-->>-C: ejemplar',
+      '  C->>+RP: guardar(new Prestamo(...))',
+      '  RP-->>-C: ok',
+      '  C-->>-B: 201 Created'
     ].join('\n'),
     opciones: [
       { t: 'Saltea el Service: reglas en la Presentación, sin transacción y testeables solo vía HTTP.', ok: true,
@@ -111,7 +112,7 @@ window.PREGUNTAS_AVANZADAS = [
     ]
   },
   {
-    id: 'A06', tema: 'Capas', caso: 'biblioteca',
+    id: 'A06', tema: 'Capas', caso: 'biblioteca', fragmento: 'prestamo',
     enunciado: '<p>¿Dónde conviene ubicar la regla “un socio no puede tener más de 3 préstamos activos ni multas impagas”?</p>',
     opciones: [
       { t: 'En <code>Socio.puedePedirPrestamo()</code>, que el Service consulta al orquestar.', ok: true,
@@ -125,7 +126,7 @@ window.PREGUNTAS_AVANZADAS = [
     ]
   },
   {
-    id: 'A07', tema: 'Capas', caso: 'biblioteca',
+    id: 'A07', tema: 'Capas', caso: 'biblioteca', fragmento: 'prestamo',
     enunciado: '<p>Al devolver un libro 3 días tarde, ¿qué reparto de responsabilidades es coherente con el diseño de la Biblioteca?</p>',
     opciones: [
       { t: '<code>Prestamo.devolver</code> calcula la multa; el Service persiste todo en una transacción.', ok: true,
@@ -139,7 +140,7 @@ window.PREGUNTAS_AVANZADAS = [
     ]
   },
   {
-    id: 'A08', tema: 'Capas', caso: 'biblioteca',
+    id: 'A08', tema: 'Capas', caso: 'biblioteca', fragmento: 'entradas',
     enunciado: '<p>En el recordatorio por mail, <code>RecordatorioListener</code> recibe un mensaje de la cola y llama a <code>PrestamoService.recordarVencimiento</code>. ¿Por qué este diseño tiene sentido?</p>',
     opciones: [
       { t: 'El listener es otra Presentación: reutiliza el Service y el mail sale por un Client.', ok: true,
@@ -160,12 +161,13 @@ window.PREGUNTAS_AVANZADAS = [
       '  participant S as CanjeService',
       '  participant CC as ComercioClient',
       '  participant So as "s1:Socio"',
-      '  participant RS as SocioRepository',
-      '  S->>CC: confirmarCanje(1001, TERMO)',
-      '  CC-->>S: confirmado',
-      '  S->>So: puedeCanjear(termo, hoy)',
-      '  So-->>S: false',
-      '  Note over S: lanza error, la transaccion se revierte'
+      '  activate S',
+      '  S->>+CC: confirmarCanje(1001, TERMO)',
+      '  CC-->>-S: confirmado',
+      '  S->>+So: puedeCanjear(termo, hoy)',
+      '  So-->>-S: false',
+      '  Note over S: lanza error, la transaccion se revierte',
+      '  deactivate S'
     ].join('\n'),
     opciones: [
       { t: 'El comercio confirma un canje que después rechazamos, y el rollback no lo deshace.', ok: true,
@@ -179,7 +181,7 @@ window.PREGUNTAS_AVANZADAS = [
     ]
   },
   {
-    id: 'A10', tema: 'Capas', caso: 'biblioteca',
+    id: 'A10', tema: 'Capas', caso: 'biblioteca', fragmento: 'prestamo',
     enunciado: '<p>Se agrega una regla nueva: “un ejemplar <strong>reservado</strong> por otro socio no se le puede prestar a nadie más”. Con el diseño del caso (la disponibilidad la decide <code>Ejemplar</code>), ¿qué cambia?</p>',
     opciones: [
       { t: 'Sobre todo el Dominio (Ejemplar y una nueva Reserva) y su persistencia.', ok: true,
@@ -193,7 +195,7 @@ window.PREGUNTAS_AVANZADAS = [
     ]
   },
   {
-    id: 'A11', tema: 'Capas', caso: 'clubpuntos',
+    id: 'A11', tema: 'Capas', caso: 'clubpuntos', fragmento: 'capas',
     enunciado: '<p>Se canjea desde dos lugares: la app móvil (API JSON) y la pantalla de la caja del comercio (web). Hay dos tipos de validación: de <strong>formato</strong> (“el número de socio no puede venir vacío”) y de <strong>negocio</strong> (“los puntos vigentes alcanzan”). ¿Dónde va cada una?</p>',
     opciones: [
       { t: 'Formato en cada Presentación; la regla de negocio, una sola vez en el Dominio.', ok: true,
@@ -207,7 +209,7 @@ window.PREGUNTAS_AVANZADAS = [
     ]
   },
   {
-    id: 'A12', tema: 'Capas', caso: 'clubpuntos',
+    id: 'A12', tema: 'Capas', caso: 'clubpuntos', fragmento: 'canje',
     enunciado: '<p>El club decide pasar de H2 a PostgreSQL. Con el diseño del caso, ¿qué pasa con los tests CP-T1 a CP-T5?</p>',
     opciones: [
       { t: 'Hay que reescribirlos todos, porque cambia la base.',
@@ -221,7 +223,7 @@ window.PREGUNTAS_AVANZADAS = [
     ]
   },
   {
-    id: 'A13', tema: 'Capas', caso: 'clubpuntos',
+    id: 'A13', tema: 'Capas', caso: 'clubpuntos', fragmento: 'canje',
     enunciado: '<p>Hay que implementar el vencimiento nocturno de puntos. ¿Qué propuesta es la mejor?</p>',
     opciones: [
       { t: 'Un proceso por horario que use un Service de vencimiento y la regla de <code>Socio</code>.', ok: true,
@@ -237,7 +239,7 @@ window.PREGUNTAS_AVANZADAS = [
 
   // ---------------------------- Testing (5) ----------------------------
   {
-    id: 'A14', tema: 'Testing', caso: 'clubpuntos',
+    id: 'A14', tema: 'Testing', caso: 'clubpuntos', fragmento: 'canje',
     enunciado: '<p>Si la regla de vigencia estuviera en <code>CanjeService</code> (y <code>Socio</code> solo tuviera getters y setters), ¿cuál de los tests del caso <strong>no</strong> se podría escribir como está?</p>',
     opciones: [
       { t: 'CP-T1, que le pregunta a <code>Socio</code> cuántos puntos vigentes tiene, sin mocks.', ok: true,
@@ -251,7 +253,7 @@ window.PREGUNTAS_AVANZADAS = [
     ]
   },
   {
-    id: 'A15', tema: 'Testing', caso: 'clubpuntos',
+    id: 'A15', tema: 'Testing', caso: 'clubpuntos', fragmento: 'canje',
     enunciado: '<p>¿Cuál es la descripción correcta del test CP-T3 (premio sin stock) en términos de Arrange, Act y Assert?</p>',
     opciones: [
       { t: 'Arrange: mocks devuelven socio con puntos y premio sin stock. Act: canjear. Assert: error, y <code>verify</code> de que nunca se confirmó ni se guardó.', ok: true,
@@ -265,7 +267,7 @@ window.PREGUNTAS_AVANZADAS = [
     ]
   },
   {
-    id: 'A16', tema: 'Testing', caso: 'clubpuntos',
+    id: 'A16', tema: 'Testing', caso: 'clubpuntos', fragmento: 'canje',
     enunciado: '<p>En producción, socios con 0 puntos vigentes lograron canjear premios. CP-T2 (<code>puedeCanjear</code> devuelve <code>false</code>) pasa. Se descubre que, tras un refactor, <code>CanjeService</code> dejó de llamar a <code>puedeCanjear</code>. ¿Qué test faltaba?</p>',
     opciones: [
       { t: 'Uno del Service: socio que no puede canjear ⇒ error, y nunca se confirma ni se guarda.', ok: true,
@@ -279,7 +281,7 @@ window.PREGUNTAS_AVANZADAS = [
     ]
   },
   {
-    id: 'A17', tema: 'Testing', caso: 'biblioteca',
+    id: 'A17', tema: 'Testing', caso: 'biblioteca', fragmento: 'prestamo',
     enunciado: '<p>En la secuencia a nivel clases de la Biblioteca aparece el paso “<code>p9:Prestamo</code>.devolver(hoy) ⇒ Multa de 1500”. ¿Qué test lo cubre y qué tipo de test es?</p>',
     opciones: [
       { t: 'BI-T2: unitario de Dominio, sin mocks.', ok: true,
@@ -293,7 +295,7 @@ window.PREGUNTAS_AVANZADAS = [
     ]
   },
   {
-    id: 'A18', tema: 'Testing', caso: 'clubpuntos',
+    id: 'A18', tema: 'Testing', caso: 'clubpuntos', fragmento: 'canje',
     enunciado: '<p>Se arma un test que levanta toda la aplicación con el profile <code>test</code>: repositorios en memoria y un <code>ComercioClient</code> <strong>falso</strong> que siempre confirma. ¿Por qué también hace falta reemplazar el client?</p>',
     opciones: [
       { t: 'Porque el client real llamaría al comercio: el test sería lento, frágil y con efectos reales.', ok: true,
@@ -309,7 +311,7 @@ window.PREGUNTAS_AVANZADAS = [
 
   // ----------------------- Diseño y principios (3) -----------------------
   {
-    id: 'A19', tema: 'Diseño y principios', caso: 'clubpuntos',
+    id: 'A19', tema: 'Diseño y principios', caso: 'clubpuntos', fragmento: 'canje',
     enunciado: '<p>Con el tiempo, <code>CanjeService</code> también calcula cuántos puntos corresponden a una compra, arma el PDF del comprobante y envía el mail de “canje exitoso” conectándose al servidor de correo. ¿Qué diagnóstico es el más preciso?</p>',
     opciones: [
       { t: 'Viola SRP: puntos, PDF y mail son motivos de cambio de capas distintas.', ok: true,
@@ -323,7 +325,7 @@ window.PREGUNTAS_AVANZADAS = [
     ]
   },
   {
-    id: 'A20', tema: 'Diseño y principios', caso: 'clubpuntos',
+    id: 'A20', tema: 'Diseño y principios', caso: 'clubpuntos', fragmento: 'canje',
     enunciado: '<p>Aparecen tipos de premio: producto físico (se reserva stock), descuento (genera un código) y donación (se avisa a una ONG). Una propuesta pone un <code>switch</code> por tipo dentro de <code>CanjeService</code>. Otra le agrega a <code>Premio</code> un método <code>entregar()</code>, con una implementación por cada tipo. ¿Cuál conviene?</p>',
     opciones: [
       { t: 'La de <code>Premio.entregar()</code>: cumple OCP y deja la regla en el Dominio.', ok: true,
@@ -337,7 +339,7 @@ window.PREGUNTAS_AVANZADAS = [
     ]
   },
   {
-    id: 'A21', tema: 'Diseño y principios', caso: 'clubpuntos',
+    id: 'A21', tema: 'Diseño y principios', caso: 'clubpuntos', fragmento: 'canje',
     enunciado: '<p>Cada vez que el comercio cambia el formato de su API, el equipo termina modificando <code>CanjeService</code>, <code>Socio</code> y <code>CanjeController</code>, y casi siempre algo se rompe. ¿Qué describe mejor la situación y cómo se ataca?</p>',
     opciones: [
       { t: 'Rigidez y fragilidad por acoplamiento; se aísla todo en <code>ComercioClient</code>.', ok: true,
@@ -367,7 +369,7 @@ window.PREGUNTAS_AVANZADAS = [
     ]
   },
   {
-    id: 'A23', tema: 'Web y HTTP', caso: 'biblioteca',
+    id: 'A23', tema: 'Web y HTTP', caso: 'biblioteca', fragmento: 'prestamo',
     enunciado: '<p>¿Qué cadena es coherente de punta a punta cuando se intenta prestar un libro a un socio con multas impagas?</p>',
     opciones: [
       { t: '<code>Socio</code> rechaza; el Service lanza una excepción de negocio; la Presentación responde 400.', ok: true,
@@ -397,7 +399,7 @@ window.PREGUNTAS_AVANZADAS = [
 
   // ------------------------------ Spring (2) ------------------------------
   {
-    id: 'A25', tema: 'Spring', caso: 'biblioteca',
+    id: 'A25', tema: 'Spring', caso: 'biblioteca', fragmento: 'entradas',
     enunciado: '<p><code>NotificadorClient</code> es una interfaz con dos implementaciones: una que envía por SMTP (<code>@Profile("!test")</code>) y otra que solo guarda los mails en una lista (<code>@Profile("test")</code>). <code>PrestamoService</code> la recibe por constructor. ¿Qué afirmación es correcta?</p>',
     opciones: [
       { t: 'Con el profile test, Spring inyecta la versión en lista y el Service no cambia.', ok: true,
@@ -411,7 +413,7 @@ window.PREGUNTAS_AVANZADAS = [
     ]
   },
   {
-    id: 'A26', tema: 'Spring', caso: 'clubpuntos',
+    id: 'A26', tema: 'Spring', caso: 'clubpuntos', fragmento: 'canje',
     enunciado: '<p>Un compañero dice: “<code>Socio</code> tiene <code>@Entity</code>, así que ya es parte del Dominio y está bien diseñado”. ¿Qué le responderías?</p>',
     opciones: [
       { t: 'La anotación solo define el mapeo a tabla; lo que importa es si tiene las reglas.', ok: true,
@@ -427,7 +429,7 @@ window.PREGUNTAS_AVANZADAS = [
 
   // ---------------------- Presentación y MVC (2) ----------------------
   {
-    id: 'A27', tema: 'Presentación y MVC', caso: 'clubpuntos',
+    id: 'A27', tema: 'Presentación y MVC', caso: 'clubpuntos', fragmento: 'capas',
     enunciado: '<p>La app móvil arma sus pantallas en el teléfono con los datos JSON de la API. La pantalla de la caja del comercio es una página web que se arma en el servidor con una plantilla HTML. ¿Qué afirmación es correcta?</p>',
     opciones: [
       { t: 'Dos Presentaciones con distinta Vista; sus Controladores usan el mismo Service.', ok: true,
@@ -441,7 +443,7 @@ window.PREGUNTAS_AVANZADAS = [
     ]
   },
   {
-    id: 'A28', tema: 'Presentación y MVC', caso: 'biblioteca',
+    id: 'A28', tema: 'Presentación y MVC', caso: 'biblioteca', fragmento: 'entradas',
     enunciado: '<p>La biblioteca suma un bot de Telegram (“/mis_prestamos”) y ya tiene el <code>RecordatorioListener</code> que manda mails. ¿Qué análisis es correcto?</p>',
     opciones: [
       { t: 'El bot es un Controlador con Vista prestada; el mail sale por un Client (Fuente de datos).', ok: true,
@@ -457,7 +459,7 @@ window.PREGUNTAS_AVANZADAS = [
 
   // ------------------------------ Datos (1) ------------------------------
   {
-    id: 'A29', tema: 'Datos', caso: 'clubpuntos',
+    id: 'A29', tema: 'Datos', caso: 'clubpuntos', fragmento: 'canje',
     enunciado: '<p>El vencimiento nocturno recorre los 2 millones de socios y, por cada uno, accede a sus movimientos, que se cargan de forma <em>lazy</em> (uno por uno, cuando se los necesita). El proceso no termina dentro de su ventana de 00 a 06 h. ¿Qué está pasando?</p>',
     opciones: [
       { t: 'Es el problema N + 1: una consulta por socio, millones en total.', ok: true,
@@ -484,6 +486,63 @@ window.PREGUNTAS_AVANZADAS = [
         fb: 'El vencimiento no lo pide nadie: lo dispara un horario (Batch). Y el tablero lo consulta una persona que espera el resultado: es Analítica, no Batch.' },
       { t: 'Todo es una sola aplicación Web, porque se accede por internet.',
         fb: 'Cada parte tiene otro usuario, otro disparador y otro tiempo de respuesta; la ficha las distingue. Un sistema real combina varios tipos.' }
+    ]
+  },
+  // ------------------------- Modelado REST (4) -------------------------
+  {
+    id: 'A31', tema: 'Modelado REST', caso: 'biblioteca', fragmento: 'entradas',
+    enunciado: '<p>¿Qué conjunto de endpoints modela mejor la API de la Biblioteca?</p>',
+    opciones: [
+      { t: '<code>POST /prestamos</code>, <code>POST /prestamos/{id}/devolucion</code>, <code>GET /socios/{nro}/prestamos?estado=activo</code>', ok: true,
+        fb: 'Recursos con sustantivos, el método expresa la intención, la devolución es una acción que genera estado (y quizás una Multa), y el filtro va en la query.' },
+      { t: '<code>POST /prestar</code>, <code>POST /devolver</code>, <code>POST /consultarPrestamosActivos</code>',
+        fb: 'Todo con POST y verbos en la URL: se pierde la semántica de los métodos (una consulta no es idempotente así) y no hay recursos.' },
+      { t: '<code>PUT /prestamos</code>, <code>DELETE /prestamos/{id}</code>, <code>GET /prestamos?socio={nro}&amp;borrar=no</code>',
+        fb: 'PUT sobre la colección reemplazaría todos los préstamos, y DELETE borraría el historial que justifica la multa.' },
+      { t: '<code>GET /prestamos/nuevo?socio=77</code>, <code>GET /prestamos/9/devolver</code>, <code>GET /socios/77</code>',
+        fb: 'Usa GET para acciones que modifican: un caché, un reintento o un navegador podrían crear préstamos o devoluciones sin querer.' }
+    ]
+  },
+  {
+    id: 'A32', tema: 'Modelado REST', caso: 'clubpuntos', fragmento: 'capas',
+    enunciado: '<p>El canje se hizo bien. La app necesita mostrar los puntos restantes y el código de retiro. ¿Qué respuesta es la más adecuada?</p>',
+    opciones: [
+      { t: '<code>201 Created</code> con un <code>CanjeResponse</code> (puntos restantes y código de retiro).', ok: true,
+        fb: 'Se creó un canje (201) y el DTO trae exactamente lo que la app necesita, sin exponer el modelo interno.' },
+      { t: '<code>200 OK</code> con la entidad <code>Socio</code> completa, incluidos todos sus movimientos.',
+        fb: 'Acopla la app al Dominio, expone datos internos y obliga a cargar todos los movimientos.' },
+      { t: '<code>204 No Content</code>, porque el canje ya quedó guardado en la base.',
+        fb: 'Sin cuerpo, la app no tiene el código de retiro que necesita mostrar.' },
+      { t: '<code>302 Found</code>, redirigiendo a la pantalla del premio.',
+        fb: 'Los 3xx son redirecciones; una API le informa el resultado al cliente, que decide qué mostrar.' }
+    ]
+  },
+  {
+    id: 'A33', tema: 'Modelado REST', caso: 'clubpuntos', fragmento: 'canje',
+    enunciado: '<p>La app quiere mostrar “cuántos puntos te vencen antes de fin de año”. ¿Qué diseño es el más coherente de punta a punta?</p>',
+    opciones: [
+      { t: '<code>GET /socios/1001/puntos?vencenAntesDe=2026-12-31</code> → Service → regla de vigencia en <code>Socio</code>.', ok: true,
+        fb: 'Es una lectura (GET, idempotente), el filtro va en la query y el cálculo reutiliza la regla de vigencia del Dominio.' },
+      { t: '<code>POST /socios/1001/consultarVencimientos</code> → Service → regla de vigencia en <code>Socio</code>.',
+        fb: 'Las capas están bien, pero una consulta modelada como POST con un verbo pierde la semántica: no se puede cachear ni reintentar con tranquilidad.' },
+      { t: '<code>GET /socios/1001/puntos?vencenAntesDe=...</code> → el Controller consulta el Repository con un SQL propio.',
+        fb: 'El recurso está bien, pero saltea al Service y duplica la regla de vigencia en SQL, fuera del Dominio.' },
+      { t: '<code>GET /puntos/vencer</code> → ejecuta el vencimiento y devuelve cuántos puntos se vencieron.',
+        fb: 'Un GET que vence puntos modifica el estado: cualquier reintento o caché los vencería. Además, eso es tarea del proceso nocturno.' }
+    ]
+  },
+  {
+    id: 'A34', tema: 'Modelado REST', caso: 'biblioteca', fragmento: 'prestamo',
+    enunciado: '<p>Dos pedidos fallan: uno pide un ejemplar que <strong>no existe</strong>; otro, uno que <strong>ya está prestado</strong>. ¿Qué tratamiento es coherente con las capas y con REST?</p>',
+    opciones: [
+      { t: 'Inexistente: el Service no lo encuentra → <code>404</code>. Prestado: <code>Ejemplar.prestar()</code> lo rechaza → <code>400</code>.', ok: true,
+        fb: 'El 404 dice “ese recurso no existe”; el 400, “el pedido no cumple una regla”. Cada caso lo detecta la capa que corresponde, y la Presentación traduce.' },
+      { t: 'Los dos son <code>404</code>, porque en ambos casos el ejemplar “no está” para prestar.',
+        fb: 'El ejemplar prestado existe: es una regla de negocio que no se cumple. Responder 404 confunde al cliente.' },
+      { t: 'Los dos son <code>500</code>, porque en ambos casos se lanza una excepción.',
+        fb: 'El servidor funcionó bien: los dos son problemas del pedido (4xx).' },
+      { t: 'Inexistente: <code>400</code> lanzado por <code>Ejemplar</code>. Prestado: <code>404</code> lanzado por el Repository.',
+        fb: 'Si no existe, no hay objeto Ejemplar que pueda decir nada; y el Repository no conoce HTTP ni decide reglas.' }
     ]
   }
 ];

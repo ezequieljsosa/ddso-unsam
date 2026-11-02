@@ -61,7 +61,7 @@ window.PREGUNTAS_BASICAS = [
     ]
   },
   {
-    id: 'B05', tema: 'Capas', caso: 'giftcards',
+    id: 'B05', tema: 'Capas', caso: 'giftcards', fragmento: 'capas',
     enunciado: '<p>En el caso Gift Cards aparecen <code>UsoGiftCardRequest</code> (DTO entrante) y <code>UsoGiftCardResponse</code> (DTO saliente). ¿Qué son?</p>',
     opciones: [
       { t: 'Objetos que transportan datos entre la Presentación y el Service.', ok: true,
@@ -436,6 +436,63 @@ window.PREGUNTAS_BASICAS = [
         fb: 'Ficha API: otro sistema hace un pedido HTTP y espera la respuesta en milisegundos.' },
       { t: 'CLI.',
         fb: 'Ficha CLI: un desarrollador u operador ejecuta un comando frente a la terminal.' }
+    ]
+  },
+  // ------------------------- Modelado REST (4) -------------------------
+  {
+    id: 'B31', tema: 'Modelado REST',
+    enunciado: '<p>Siguiendo el estilo REST, ¿qué pedido es el más adecuado para <strong>listar las tareas</strong>?</p>',
+    opciones: [
+      { t: '<code>GET /tareas</code>', ok: true,
+        fb: 'La URL nombra el recurso (un sustantivo, en plural para la colección) y el método dice la intención: GET obtiene sin modificar.' },
+      { t: '<code>GET /obtenerTodasLasTareas</code>',
+        fb: 'La acción ya la dice el método GET; poner verbos en la URL la duplica y rompe la idea de recurso.' },
+      { t: '<code>POST /listarTareas</code>',
+        fb: 'POST es para crear o disparar acciones que modifican; listar es una lectura.' },
+      { t: '<code>DELETE /tareas</code>',
+        fb: 'DELETE eliminaría la colección: es lo contrario de lo que se quiere.' }
+    ]
+  },
+  {
+    id: 'B32', tema: 'Modelado REST', caso: 'billetera',
+    enunciado: '<p>En <code>GET /api/cuentas/juan.perez/movimientos?limite=10</code>, ¿qué rol cumplen <code>juan.perez</code> y <code>limite</code>?</p>',
+    opciones: [
+      { t: '<code>juan.perez</code> identifica el recurso; <code>limite</code> acota la consulta.', ok: true,
+        fb: 'El identificador va en la ruta (es parte de “qué recurso”); los parámetros de consulta (?limite=10) filtran o acotan el resultado.' },
+      { t: '<code>juan.perez</code> es un header y <code>limite</code> es el body del pedido.',
+        fb: 'Los dos son parte de la URL: uno en la ruta y otro en la query. Un GET normalmente no lleva body.' },
+      { t: '<code>limite</code> identifica la cuenta y <code>juan.perez</code> es un filtro opcional.',
+        fb: 'Es al revés: sin el alias no sabemos de qué cuenta hablamos; el límite es opcional (tiene un valor por defecto).' },
+      { t: 'Los dos son credenciales para autenticar al usuario.',
+        fb: 'Las credenciales viajan en el header Authorization, no en la URL.' }
+    ]
+  },
+  {
+    id: 'B33', tema: 'Modelado REST', caso: 'tareas',
+    enunciado: '<p>En <code>POST /tareas</code>, ¿dónde viajan los datos de la tarea nueva?</p>',
+    opciones: [
+      { t: 'En el body, como JSON, con el header <code>Content-Type: application/json</code>.', ok: true,
+        fb: 'Los datos van en el body; los headers describen el mensaje (qué formato tiene ese body).' },
+      { t: 'En la URL, como parámetros de consulta: <code>/tareas?titulo=...</code>.',
+        fb: 'La query sirve para filtrar o acotar lecturas; los datos de un recurso nuevo van en el body.' },
+      { t: 'En el header <code>Authorization</code>, que es el que lleva los datos.',
+        fb: 'Authorization lleva credenciales, no los datos del recurso.' },
+      { t: 'En el código de estado del pedido.',
+        fb: 'Los códigos de estado los usa la respuesta para contar el resultado; un pedido no lleva código de estado.' }
+    ]
+  },
+  {
+    id: 'B34', tema: 'Modelado REST',
+    enunciado: '<p>¿Qué capa decide la URL, el método HTTP y el código de estado de cada recurso REST?</p>',
+    opciones: [
+      { t: 'La Presentación (los Controllers).', ok: true,
+        fb: 'El modelo REST es la cara HTTP de la aplicación. El Service y el Dominio no deberían saber que existe.' },
+      { t: 'El Service, porque es el que conoce el caso de uso completo.',
+        fb: 'El Service expone casos de uso en términos del negocio; si conociera HTTP no se podría reutilizar desde otra Presentación.' },
+      { t: 'El Dominio, porque los recursos son los objetos del negocio.',
+        fb: 'Muchas veces los recursos se parecen a los objetos del Dominio, pero URLs y códigos son decisiones de Presentación.' },
+      { t: 'La Fuente de datos, porque cada recurso es una tabla.',
+        fb: 'Un recurso REST no tiene por qué coincidir con una tabla; y la Fuente de datos no conoce HTTP.' }
     ]
   }
 ];
