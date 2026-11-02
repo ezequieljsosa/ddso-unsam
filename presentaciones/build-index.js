@@ -19,10 +19,13 @@ for (const item of items) {
       const htmlContent = fs.readFileSync(indexPath, 'utf-8');
       const titleMatch = htmlContent.match(/<title>(.*?)<\/title>/);
       const title = titleMatch ? titleMatch[1].replace(' - Slidev', '') : item;
+      const isQuiz = htmlContent.includes('name="ddso-kind" content="autoevaluacion"');
       presentations.push({
         dir: item,
         title: title,
-        url: `./${item}/`
+        url: `./${item}/`,
+        badge: isQuiz ? 'Autoevaluación' : 'Clase',
+        action: isQuiz ? 'Responder preguntas' : 'Ver diapositivas'
       });
     }
   }
@@ -163,9 +166,9 @@ const html = `<!DOCTYPE html>
         <a href="${p.url}" class="card">
           <div>
             <h3>${p.title}</h3>
-            <span class="badge">Clase</span>
+            <span class="badge">${p.badge}</span>
           </div>
-          <div class="arrow">Ver diapositivas &rarr;</div>
+          <div class="arrow">${p.action} &rarr;</div>
         </a>
       `).join('')}
     </div>

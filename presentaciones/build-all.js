@@ -15,6 +15,7 @@ fs.mkdirSync(distDir, { recursive: true });
 // 2. Find all presentation directories (subdirectories containing <dirname>.md)
 const items = fs.readdirSync(rootDir);
 const presentations = [];
+const staticPages = [];
 
 for (const item of items) {
   const itemPath = path.join(rootDir, item);
@@ -22,6 +23,9 @@ for (const item of items) {
     const mdPath = path.join(itemPath, `${item}.md`);
     if (fs.existsSync(mdPath)) {
       presentations.push({ dir: item, md: `${item}/${item}.md` });
+    } else if (fs.existsSync(path.join(itemPath, 'index.html'))) {
+      // Static pages (e.g. autoevaluacion/) are published as-is, without Slidev
+      staticPages.push(item);
     }
   }
 }
@@ -47,6 +51,12 @@ for (const p of presentations) {
       fs.copyFileSync(path.join(publicDir, file), path.join(outPath, file));
     }
   }
+}
+
+// 3b. Copy static pages to dist/<dirname>
+for (const dir of staticPages) {
+  console.log(`\n📄 Copying static page: ${dir}...`);
+  fs.cpSync(path.join(rootDir, dir), path.join(distDir, dir), { recursive: true });
 }
 
 // 4. Copy public assets to dist root for landing page and root favicon resolution

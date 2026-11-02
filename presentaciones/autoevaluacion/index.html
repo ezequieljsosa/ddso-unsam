@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="ddso-kind" content="autoevaluacion">
+  <title>Autoevaluación - Diseño de Software</title>
+  <link rel="icon" href="https://www.unsam.edu.ar/favicon.ico">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&family=Inter:wght@400;500;600&family=Fira+Code&display=swap">
+  <link rel="stylesheet" href="./estilos.css">
+</head>
+<body>
+  <header class="encabezado">
+    <div class="encabezado-titulo">
+      <h1>Autoevaluación</h1>
+      <p>Diseño de Software · UNSAM — capas, diseño limpio y aplicaciones enterprise</p>
+    </div>
+    <nav class="pestanas" id="pestanas">
+      <button data-vista="casos">📘 Casos</button>
+      <button data-vista="basicas">Básicas</button>
+      <button data-vista="medias">Medias</button>
+      <button data-vista="avanzadas">Avanzadas</button>
+    </nav>
+  </header>
+
+  <div id="volver" class="volver oculto">
+    <button id="volver-boton">← Volver a la pregunta</button>
+  </div>
+
+  <main id="contenido"></main>
+
+  <footer class="pie">Cátedra de Diseño de Software - UNSAM</footer>
+
+  <script src="./casos.js"></script>
+  <script src="./preguntas-basicas.js"></script>
+  <script src="./preguntas-medias.js"></script>
+  <script src="./preguntas-avanzadas.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11.16.0/dist/mermaid.min.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>

@@ -1,0 +1,732 @@
+/* Casos para leer aparte (pestaña "Casos").
+ * Visto en clase: giftcards, billetera, tareas. Nuevos: clubpuntos, biblioteca.
+ * Los diagramas siguen las convenciones de las presentaciones (estereotipos por capa).
+ */
+window.CASOS = [
+  // ------------------------------------------------------------------
+  {
+    id: 'giftcards',
+    titulo: 'Gift Cards',
+    origen: 'Clase de Introducción — ejemplo "Del requerimiento al diseño"',
+    nuevo: false,
+    descripcion:
+      '<p>Una aplicación administra gift cards de distintos proveedores (por ejemplo, Café Norte).</p>' +
+      '<ul>' +
+      '<li>Una persona puede consultar sus gift cards y su saldo.</li>' +
+      '<li>Puede usar una gift card al pagar una compra.</li>' +
+      '<li>El sistema valida la <strong>vigencia</strong> y el <strong>saldo disponible</strong>.</li>' +
+      '<li>El <strong>proveedor externo</strong> confirma el consumo (lo llamamos por HTTP).</li>' +
+      '</ul>' +
+      '<p><strong>Escenario:</strong> Ana quiere pagar un café de $3.500 con la gift card <code>CN-7K2P</code>, ' +
+      'que tiene saldo $8.000 y vence el 31/12/2026.</p>',
+    secciones: [
+      {
+        titulo: 'Diagrama de clases',
+        diagrama: [
+          'classDiagram',
+          '  direction LR',
+          '  class GiftCardController {',
+          '    <<Presentacion>>',
+          '    +usar(request) UsoGiftCardResponse',
+          '  }',
+          '  class UsoGiftCardRequest {',
+          '    <<DTO entrante>>',
+          '    codigo',
+          '    monto',
+          '  }',
+          '  class UsoGiftCardResponse {',
+          '    <<DTO saliente>>',
+          '    saldoActual',
+          '  }',
+          '  class GiftCardService {',
+          '    <<Servicio de aplicacion>>',
+          '    +usar(codigo, monto) UsoGiftCardResponse',
+          '  }',
+          '  class GiftCard {',
+          '    <<Dominio>>',
+          '    codigo',
+          '    saldo',
+          '    venceEl',
+          '    +estaVigente() boolean',
+          '    +tieneSaldoPara(monto) boolean',
+          '    +puedeUsarse(monto) boolean',
+          '    +descontar(monto)',
+          '  }',
+          '  class Usuario {',
+          '    <<Dominio>>',
+          '  }',
+          '  class GiftCardRepository {',
+          '    <<Repositorio>>',
+          '    +buscarPorCodigo(codigo) GiftCard',
+          '    +guardar(giftCard)',
+          '  }',
+          '  class ProveedorGiftCardClient {',
+          '    <<Client externo>>',
+          '    +confirmarConsumo(giftCard, monto) ConfirmacionProveedor',
+          '  }',
+          '  GiftCardController --> UsoGiftCardRequest : recibe',
+          '  GiftCardController --> UsoGiftCardResponse : devuelve',
+          '  GiftCardController --> GiftCardService : delega',
+          '  GiftCardService --> GiftCardRepository : consulta y guarda',
+          '  GiftCardService --> ProveedorGiftCardClient : confirma',
+          '  GiftCardService --> GiftCard : aplica regla',
+          '  Usuario "1" --> "0..*" GiftCard : posee'
+        ].join('\n')
+      },
+      {
+        titulo: 'Secuencia a nivel componentes: usar la gift card',
+        texto: '<p class="nota">Qué capa le habla a cuál, y qué viaja por la red.</p>',
+        diagrama: [
+          'sequenceDiagram',
+          '  actor U as Usuario',
+          '  participant C as GiftCardController',
+          '  participant S as GiftCardService',
+          '  participant R as GiftCardRepository',
+          '  participant DB as Base de datos',
+          '  participant P as ProveedorGiftCardClient',
+          '  participant X as Proveedor externo',
+          '  U->>C: POST /giftcards/CN-7K2P/usos { monto: 3500 }',
+          '  C->>S: usar(CN-7K2P, 3500)',
+          '  S->>R: buscarPorCodigo(CN-7K2P)',
+          '  R->>DB: SELECT',
+          '  DB-->>R: fila',
+          '  R-->>S: GiftCard',
+          '  S->>P: confirmarConsumo(giftCard, 3500)',
+          '  P->>X: POST /consumos',
+          '  X-->>P: 200 OK',
+          '  P-->>S: ConfirmacionProveedor',
+          '  S->>R: guardar(giftCard)',
+          '  R->>DB: UPDATE',
+          '  S-->>C: UsoGiftCardResponse',
+          '  C-->>U: 200 OK { saldoActual: 4500 }'
+        ].join('\n')
+      },
+      {
+        titulo: 'Secuencia a nivel clases: quién decide',
+        texto: '<p class="nota">Mismo caso de uso, mirando los objetos. La regla la decide el objeto de Dominio.</p>',
+        diagrama: [
+          'sequenceDiagram',
+          '  participant S as GiftCardService',
+          '  participant R as GiftCardRepository',
+          '  participant G as "gf1:GiftCard"',
+          '  participant P as ProveedorGiftCardClient',
+          '  S->>R: buscarPorCodigo(CN-7K2P)',
+          '  R-->>S: gf1',
+          '  S->>G: puedeUsarse(3500)',
+          '  G->>G: estaVigente()',
+          '  G->>G: tieneSaldoPara(3500)',
+          '  G-->>S: true',
+          '  S->>P: confirmarConsumo(gf1, 3500)',
+          '  P-->>S: confirmado',
+          '  S->>G: descontar(3500)',
+          '  Note over G: saldo pasa de 8000 a 4500',
+          '  S->>R: guardar(gf1)'
+        ].join('\n')
+      }
+    ],
+    tests: [
+      { id: 'GC-T1', unidad: '<code>GiftCard</code> (Dominio, sin mocks)', dado: 'una gift card vigente con saldo 8000', cuando: 'se descuentan 3500', entonces: 'el saldo queda en 4500' },
+      { id: 'GC-T2', unidad: '<code>GiftCard</code> (Dominio, sin mocks)', dado: 'una gift card con saldo 8000 que venció ayer', cuando: 'se pregunta <code>puedeUsarse(1000)</code>', entonces: 'responde <code>false</code>' },
+      { id: 'GC-T3', unidad: '<code>GiftCardService</code> (mocks de Repository y Client)', dado: 'el repositorio (mock) devuelve la gift card CN-7K2P vigente con saldo 8000, y el client (mock) confirma el consumo', cuando: 'se llama <code>usar("CN-7K2P", 3500)</code>', entonces: 'la respuesta informa saldo 4500, y se verifica que se llamó una vez a <code>confirmarConsumo</code> y una vez a <code>guardar</code>' },
+      { id: 'GC-T4', unidad: '<code>GiftCardService</code> (mocks de Repository y Client)', dado: 'el repositorio (mock) devuelve una gift card con saldo 1000', cuando: 'se llama <code>usar("CN-7K2P", 3500)</code>', entonces: 'se lanza un error de saldo insuficiente, y se verifica que <strong>nunca</strong> se llamó a <code>confirmarConsumo</code> ni a <code>guardar</code>' }
+    ]
+  },
+
+  // ------------------------------------------------------------------
+  {
+    id: 'billetera',
+    titulo: 'Billetera Virtual',
+    origen: 'Práctica 1 — "Dominio, Spring Boot y Servicio web"',
+    nuevo: false,
+    descripcion:
+      '<p>Una billetera virtual simple. Cada <strong>Cuenta</strong> tiene titular, <strong>alias</strong> (único), saldo y un indicador de si está activa. ' +
+      'Cada operación de dinero queda registrada como un <strong>Movimiento</strong>.</p>' +
+      '<ul>' +
+      '<li>Consultar el saldo de una cuenta por su alias.</li>' +
+      '<li>Consultar los últimos movimientos de una cuenta.</li>' +
+      '<li><strong>Transferir</strong> un importe entre dos cuentas, indicando alias de origen, alias de destino e importe.</li>' +
+      '</ul>' +
+      '<p><strong>Reglas de la transferencia:</strong> origen y destino deben estar activas; el origen debe tener saldo suficiente. ' +
+      'Si todo está bien se descuenta del origen, se suma al destino y se registra un Movimiento de tipo TRANSFERENCIA, ' +
+      'que se devuelve como respuesta.</p>' +
+      '<p><strong>Errores:</strong> un alias que no existe responde <code>404 Not Found</code>; una regla de negocio no cumplida ' +
+      '(fondos insuficientes, cuenta inactiva) responde <code>400 Bad Request</code>. La traducción la hace un manejador global de excepciones.</p>' +
+      '<p><strong>Repositorio con dos implementaciones:</strong> <code>CuentaRepository</code> es una interfaz. ' +
+      'Con los profiles <code>local</code> y <code>prod</code> Spring usa la versión JPA (base de datos); con el profile <code>test</code> usa una versión en memoria.</p>',
+    secciones: [
+      {
+        titulo: 'Diagrama de clases',
+        diagrama: [
+          'classDiagram',
+          '  direction LR',
+          '  class CuentaController {',
+          '    <<Presentacion>>',
+          '    +saldo(alias) SaldoResponse',
+          '    +movimientos(alias, limite) List~MovimientoResponse~',
+          '    +transferir(request) MovimientoResponse',
+          '  }',
+          '  class ManejadorGlobalDeErrores {',
+          '    <<Presentacion>>',
+          '    +traducir(excepcion) StatusHttp',
+          '  }',
+          '  class TransferenciaRequest {',
+          '    <<DTO entrante>>',
+          '    aliasOrigen',
+          '    aliasDestino',
+          '    monto',
+          '  }',
+          '  class MovimientoResponse {',
+          '    <<DTO saliente>>',
+          '    id',
+          '    tipo',
+          '    monto',
+          '    fecha',
+          '  }',
+          '  class CuentaService {',
+          '    <<Servicio de aplicacion>>',
+          '    +consultarSaldo(alias) SaldoResponse',
+          '    +listarMovimientos(alias, limite)',
+          '    +transferir(aliasOrigen, aliasDestino, monto) MovimientoResponse',
+          '  }',
+          '  class Cuenta {',
+          '    <<Dominio>>',
+          '    titular',
+          '    alias',
+          '    saldo',
+          '    activa',
+          '    +transferir(destino, monto)',
+          '  }',
+          '  class Movimiento {',
+          '    <<Dominio>>',
+          '    monto',
+          '    tipo',
+          '    fecha',
+          '  }',
+          '  class CuentaRepository {',
+          '    <<Repositorio - interfaz>>',
+          '    +findByAlias(alias) Cuenta',
+          '    +guardar(cuenta)',
+          '  }',
+          '  class CuentaRepositoryJpa {',
+          '    <<Repositorio - profile local y prod>>',
+          '  }',
+          '  class CuentaRepositoryEnMemoria {',
+          '    <<Repositorio - profile test>>',
+          '  }',
+          '  class MovimientoRepository {',
+          '    <<Repositorio>>',
+          '    +save(movimiento)',
+          '  }',
+          '  CuentaController --> TransferenciaRequest : recibe',
+          '  CuentaController --> MovimientoResponse : devuelve',
+          '  CuentaController --> CuentaService : delega',
+          '  CuentaService --> CuentaRepository : busca y guarda',
+          '  CuentaService --> MovimientoRepository : guarda',
+          '  CuentaService --> Cuenta : aplica regla',
+          '  CuentaService --> Movimiento : crea',
+          '  CuentaRepositoryJpa ..|> CuentaRepository',
+          '  CuentaRepositoryEnMemoria ..|> CuentaRepository',
+          '  Movimiento --> "0..1" Cuenta : origen',
+          '  Movimiento --> "1" Cuenta : destino'
+        ].join('\n')
+      },
+      {
+        titulo: 'Secuencia a nivel componentes: transferir',
+        diagrama: [
+          'sequenceDiagram',
+          '  actor Cl as Cliente HTTP',
+          '  participant C as CuentaController',
+          '  participant S as CuentaService',
+          '  participant RC as CuentaRepository',
+          '  participant RM as MovimientoRepository',
+          '  participant DB as Base de datos',
+          '  Cl->>C: POST /api/cuentas/transferencias { juan.perez, maria.gomez, 1000 }',
+          '  C->>S: transferir(juan.perez, maria.gomez, 1000)',
+          '  Note over S: inicio de la transaccion',
+          '  S->>RC: findByAlias(juan.perez)',
+          '  RC->>DB: SELECT',
+          '  S->>RC: findByAlias(maria.gomez)',
+          '  RC->>DB: SELECT',
+          '  Note over S: el Dominio aplica la regla (ver secuencia de clases)',
+          '  S->>RC: guardar(origen) y guardar(destino)',
+          '  RC->>DB: UPDATE x2',
+          '  S->>RM: save(movimiento)',
+          '  RM->>DB: INSERT',
+          '  Note over S: fin de la transaccion (commit)',
+          '  S-->>C: MovimientoResponse',
+          '  C-->>Cl: 201 Created + JSON del movimiento'
+        ].join('\n')
+      },
+      {
+        titulo: 'Secuencia a nivel clases: transferir',
+        diagrama: [
+          'sequenceDiagram',
+          '  participant S as CuentaService',
+          '  participant O as "origen:Cuenta"',
+          '  participant D as "destino:Cuenta"',
+          '  participant M as "m:Movimiento"',
+          '  participant RM as MovimientoRepository',
+          '  S->>O: transferir(destino, 1000)',
+          '  Note over O: valida origen activa, destino activa y saldo suficiente',
+          '  O->>D: acreditar 1000',
+          '  O->>O: debitar 1000',
+          '  O-->>S: ok',
+          '  S->>M: new Movimiento(origen, destino, 1000, TRANSFERENCIA)',
+          '  S->>RM: save(m)'
+        ].join('\n')
+      },
+      {
+        titulo: 'Secuencia de error: fondos insuficientes',
+        diagrama: [
+          'sequenceDiagram',
+          '  actor Cl as Cliente HTTP',
+          '  participant C as CuentaController',
+          '  participant S as CuentaService',
+          '  participant O as "origen:Cuenta"',
+          '  participant H as ManejadorGlobalDeErrores',
+          '  Cl->>C: POST /api/cuentas/transferencias { monto: 999999 }',
+          '  C->>S: transferir(...)',
+          '  S->>O: transferir(destino, 999999)',
+          '  O-->>S: TransferenciaException (fondos insuficientes)',
+          '  Note over S: la transaccion se revierte',
+          '  S-->>C: TransferenciaException',
+          '  C-->>H: TransferenciaException',
+          '  H-->>Cl: 400 Bad Request { mensaje }'
+        ].join('\n')
+      }
+    ],
+    tests: [
+      { id: 'BV-T1', unidad: '<code>Cuenta</code> (Dominio, sin mocks)', dado: 'una cuenta origen con saldo 14 y una destino con saldo 2', cuando: 'el origen transfiere 1 al destino', entonces: 'el origen queda con 13 y el destino con 3' },
+      { id: 'BV-T2', unidad: '<code>Cuenta</code> (Dominio, sin mocks)', dado: 'una cuenta origen con saldo 14', cuando: 'intenta transferir 100', entonces: 'se lanza <code>TransferenciaException</code>' },
+      { id: 'BV-T3', unidad: '<code>Cuenta</code> (Dominio, sin mocks)', dado: 'una cuenta origen inactiva con saldo 14', cuando: 'intenta transferir 1', entonces: 'se lanza <code>TransferenciaException</code>' },
+      { id: 'BV-T4', unidad: '<code>CuentaService</code> (mock de CuentaRepository)', dado: 'el repositorio (mock) no encuentra el alias <code>no.existe</code>', cuando: 'se consulta el saldo de <code>no.existe</code>', entonces: 'se lanza <code>CuentaNoEncontradaException</code>' },
+      { id: 'BV-T5', unidad: '<code>CuentaService</code> (mocks de ambos repositorios)', dado: 'el repositorio (mock) devuelve las dos cuentas, activas y con saldo', cuando: 'se transfiere 10', entonces: 'se verifica que se guardaron las cuentas y que se llamó una vez a <code>save</code> del MovimientoRepository' },
+      { id: 'BV-T6', unidad: 'Aplicación completa (<code>@SpringBootTest</code> + profile <code>test</code>)', dado: 'la app levantada con <code>CuentaRepositoryEnMemoria</code> precargado', cuando: 'se transfiere de juan.perez a maria.gomez', entonces: 'al consultar los saldos, reflejan la transferencia' }
+    ]
+  },
+
+  // ------------------------------------------------------------------
+  {
+    id: 'tareas',
+    titulo: 'Tareas',
+    origen: 'Clases de Spring Boot, Testing e Interfaces de Usuario',
+    nuevo: false,
+    descripcion:
+      '<p>Un CRUD de tareas con cuatro clases: <code>TareaController</code> (<code>@RestController</code>), ' +
+      '<code>TareaService</code> (<code>@Service</code>), <code>Tarea</code> (<code>@Entity</code>) y <code>TareaRepository</code>.</p>' +
+      '<ul>' +
+      '<li><code>GET /tareas</code> lista las tareas; <code>POST /tareas</code> crea una nueva y responde <code>201 Created</code>.</li>' +
+      '<li><code>TareaRepository</code> es una interfaz: en producción la implementa JPA; con el profile <code>test</code>, una versión en memoria que guarda en un <code>Map</code>.</li>' +
+      '<li>La misma app se puede mostrar con <strong>dos vistas</strong>: una página HTML (render en servidor) y una API JSON para otros sistemas. Ambas usan el mismo <code>TareaService</code>.</li>' +
+      '</ul>',
+    secciones: [
+      {
+        titulo: 'Diagrama de clases',
+        diagrama: [
+          'classDiagram',
+          '  direction LR',
+          '  class TareaWebController {',
+          '    <<Presentacion - HTML>>',
+          '    +listar() VistaHtml',
+          '  }',
+          '  class TareaController {',
+          '    <<Presentacion - API JSON>>',
+          '    +listar() List~Tarea~',
+          '    +crear(tarea) Tarea',
+          '  }',
+          '  class TareaService {',
+          '    <<Servicio de aplicacion>>',
+          '    +listar()',
+          '    +crear(tarea)',
+          '  }',
+          '  class Tarea {',
+          '    <<Dominio>>',
+          '    id',
+          '    titulo',
+          '    completada',
+          '  }',
+          '  class TareaRepository {',
+          '    <<Repositorio - interfaz>>',
+          '    +guardar(tarea)',
+          '    +listar()',
+          '  }',
+          '  class JpaTareaRepository {',
+          '    <<Repositorio - profile no test>>',
+          '  }',
+          '  class InMemoryTareaRepository {',
+          '    <<Repositorio - profile test>>',
+          '  }',
+          '  TareaWebController --> TareaService',
+          '  TareaController --> TareaService',
+          '  TareaService --> TareaRepository',
+          '  TareaService --> Tarea',
+          '  JpaTareaRepository ..|> TareaRepository',
+          '  InMemoryTareaRepository ..|> TareaRepository'
+        ].join('\n')
+      },
+      {
+        titulo: 'Secuencia: crear una tarea',
+        diagrama: [
+          'sequenceDiagram',
+          '  actor Cl as Cliente',
+          '  participant C as TareaController',
+          '  participant S as TareaService',
+          '  participant R as TareaRepository',
+          '  participant DB as Base de datos',
+          '  Cl->>C: POST /tareas { titulo, completada }',
+          '  C->>S: crear(tarea)',
+          '  S->>R: save(tarea)',
+          '  R->>DB: INSERT',
+          '  DB-->>R: fila insertada (con id)',
+          '  R-->>S: Tarea con id',
+          '  S-->>C: Tarea con id',
+          '  C-->>Cl: 201 Created + JSON'
+        ].join('\n')
+      }
+    ],
+    tests: [
+      { id: 'TA-T1', unidad: 'Aplicación completa (<code>@SpringBootTest</code> + <code>@ActiveProfiles("test")</code>)', dado: 'la app levantada con <code>InMemoryTareaRepository</code> vacío', cuando: 'se crea la tarea "Estudiar Mockito"', entonces: 'al listar hay 1 tarea' }
+    ]
+  },
+
+  // ------------------------------------------------------------------
+  {
+    id: 'clubpuntos',
+    titulo: 'Club de Puntos',
+    origen: 'Caso nuevo — parecido a Gift Cards y a la Billetera',
+    nuevo: true,
+    descripcion:
+      '<p>Una cadena de comercios adheridos tiene un club de beneficios. Cada <strong>Socio</strong> acumula puntos cuando compra y los ' +
+      'canjea por <strong>Premios</strong>. Cada suma o resta de puntos queda registrada como un <strong>MovimientoPuntos</strong>.</p>' +
+      '<ul>' +
+      '<li><strong>Acumular:</strong> el sistema del comercio informa una compra por API (<code>POST /compras</code> con número de socio, número de ticket e importe). Se suma 1 punto cada $100.</li>' +
+      '<li><strong>Canjear:</strong> el socio, desde la app móvil, canjea un premio (<code>POST /canjes</code>).</li>' +
+      '<li><strong>Retiro:</strong> el comercio donde se retira el premio tiene que confirmar el canje en <strong>su propio sistema</strong> (lo llamamos por HTTP).</li>' +
+      '<li><strong>Vencimiento:</strong> todas las noches un proceso vence los puntos que tienen más de 12 meses.</li>' +
+      '<li><strong>Tablero:</strong> la gerencia consulta cuántos puntos se canjearon por comercio y por mes.</li>' +
+      '</ul>' +
+      '<p><strong>Reglas del canje:</strong> solo cuentan los puntos <strong>vigentes</strong> (de los últimos 12 meses); ' +
+      'los puntos vigentes tienen que alcanzar el costo del premio; el premio tiene que tener <strong>stock</strong>. ' +
+      'Si el comercio no confirma, el canje no se hace y el socio conserva sus puntos.</p>',
+    secciones: [
+      {
+        titulo: 'Diagrama de clases',
+        diagrama: [
+          'classDiagram',
+          '  direction LR',
+          '  class CanjeController {',
+          '    <<Presentacion>>',
+          '    +canjear(request) CanjeResponse',
+          '  }',
+          '  class CanjeRequest {',
+          '    <<DTO entrante>>',
+          '    nroSocio',
+          '    codigoPremio',
+          '  }',
+          '  class CanjeResponse {',
+          '    <<DTO saliente>>',
+          '    puntosRestantes',
+          '    codigoRetiro',
+          '  }',
+          '  class CanjeService {',
+          '    <<Servicio de aplicacion>>',
+          '    +canjear(nroSocio, codigoPremio) CanjeResponse',
+          '  }',
+          '  class Socio {',
+          '    <<Dominio>>',
+          '    nroSocio',
+          '    nombre',
+          '    +puntosVigentes(fecha) int',
+          '    +puedeCanjear(premio, fecha) boolean',
+          '    +descontarPuntos(cantidad, fecha)',
+          '  }',
+          '  class MovimientoPuntos {',
+          '    <<Dominio>>',
+          '    fecha',
+          '    puntos',
+          '    tipo',
+          '  }',
+          '  class Premio {',
+          '    <<Dominio>>',
+          '    codigo',
+          '    costoEnPuntos',
+          '    stock',
+          '    +hayStock() boolean',
+          '    +reservarUnidad()',
+          '  }',
+          '  class SocioRepository {',
+          '    <<Repositorio>>',
+          '    +buscarPorNumero(nro) Socio',
+          '    +guardar(socio)',
+          '  }',
+          '  class PremioRepository {',
+          '    <<Repositorio>>',
+          '    +buscarPorCodigo(codigo) Premio',
+          '    +guardar(premio)',
+          '  }',
+          '  class ComercioClient {',
+          '    <<Client externo>>',
+          '    +confirmarCanje(nroSocio, codigoPremio) Confirmacion',
+          '  }',
+          '  CanjeController --> CanjeRequest : recibe',
+          '  CanjeController --> CanjeResponse : devuelve',
+          '  CanjeController --> CanjeService : delega',
+          '  CanjeService --> SocioRepository : busca y guarda',
+          '  CanjeService --> PremioRepository : busca y guarda',
+          '  CanjeService --> ComercioClient : confirma',
+          '  CanjeService --> Socio : aplica regla',
+          '  CanjeService --> Premio : aplica regla',
+          '  Socio "1" --> "0..*" MovimientoPuntos : movimientos'
+        ].join('\n')
+      },
+      {
+        titulo: 'Secuencia a nivel componentes: canjear un premio',
+        diagrama: [
+          'sequenceDiagram',
+          '  actor A as App movil del socio',
+          '  participant C as CanjeController',
+          '  participant S as CanjeService',
+          '  participant RS as SocioRepository',
+          '  participant RP as PremioRepository',
+          '  participant CC as ComercioClient',
+          '  participant DB as Base de datos',
+          '  participant X as Sistema del comercio',
+          '  A->>C: POST /canjes { nroSocio: 1001, codigoPremio: TERMO }',
+          '  C->>S: canjear(1001, TERMO)',
+          '  Note over S: inicio de la transaccion',
+          '  S->>RS: buscarPorNumero(1001)',
+          '  RS->>DB: SELECT',
+          '  S->>RP: buscarPorCodigo(TERMO)',
+          '  RP->>DB: SELECT',
+          '  Note over S: el Dominio decide si se puede (ver secuencia de clases)',
+          '  S->>CC: confirmarCanje(1001, TERMO)',
+          '  CC->>X: POST /canjes-confirmados',
+          '  X-->>CC: 200 OK',
+          '  S->>RS: guardar(socio)',
+          '  RS->>DB: INSERT movimiento',
+          '  S->>RP: guardar(premio)',
+          '  RP->>DB: UPDATE stock',
+          '  Note over S: fin de la transaccion (commit)',
+          '  S-->>C: CanjeResponse',
+          '  C-->>A: 201 Created { puntosRestantes, codigoRetiro }'
+        ].join('\n')
+      },
+      {
+        titulo: 'Secuencia a nivel clases: canjear un premio',
+        diagrama: [
+          'sequenceDiagram',
+          '  participant S as CanjeService',
+          '  participant So as "s1:Socio"',
+          '  participant P as "termo:Premio"',
+          '  participant CC as ComercioClient',
+          '  S->>So: puedeCanjear(termo, hoy)',
+          '  So->>So: puntosVigentes(hoy)',
+          '  Note over So: suma solo los movimientos de los ultimos 12 meses',
+          '  So->>P: costoEnPuntos',
+          '  So->>P: hayStock()',
+          '  P-->>So: true',
+          '  So-->>S: true',
+          '  S->>CC: confirmarCanje(1001, TERMO)',
+          '  CC-->>S: confirmado',
+          '  S->>So: descontarPuntos(400, hoy)',
+          '  Note over So: agrega un MovimientoPuntos de -400',
+          '  S->>P: reservarUnidad()'
+        ].join('\n')
+      },
+      {
+        titulo: 'Otros tipos de aplicación dentro del mismo sistema',
+        texto:
+          '<ul>' +
+          '<li><strong>Acumulación:</strong> API que llama el sistema de cada comercio en cada compra.</li>' +
+          '<li><strong>Vencimiento nocturno:</strong> proceso que corre a las 2 AM sobre todos los socios.</li>' +
+          '<li><strong>Mail de aviso</strong> "tus puntos vencen en 7 días": se encola un mensaje y otro proceso lo envía.</li>' +
+          '<li><strong>Tablero de gerencia:</strong> puntos canjeados por comercio y por mes.</li>' +
+          '</ul>'
+      }
+    ],
+    tests: [
+      { id: 'CP-T1', unidad: '<code>Socio</code> (Dominio, sin mocks)', dado: 'un socio con 500 puntos, de los cuales 200 tienen más de 12 meses', cuando: 'se pregunta <code>puntosVigentes(hoy)</code>', entonces: 'responde 300' },
+      { id: 'CP-T2', unidad: '<code>Socio</code> (Dominio, sin mocks)', dado: 'un socio con 300 puntos vigentes y un premio que cuesta 400, con stock', cuando: 'se pregunta <code>puedeCanjear(premio, hoy)</code>', entonces: 'responde <code>false</code>' },
+      { id: 'CP-T3', unidad: '<code>CanjeService</code> (mocks de repositorios y ComercioClient)', dado: 'los repositorios (mock) devuelven un socio con puntos suficientes y un premio <strong>sin stock</strong>', cuando: 'se llama <code>canjear(1001, TERMO)</code>', entonces: 'se lanza un error de premio sin stock, y se verifica que <strong>nunca</strong> se llamó a <code>confirmarCanje</code> ni a <code>guardar</code>' },
+      { id: 'CP-T4', unidad: '<code>CanjeService</code> (mocks de repositorios y ComercioClient)', dado: 'socio y premio válidos, y el ComercioClient (mock) lanza un error de comunicación', cuando: 'se llama <code>canjear(1001, TERMO)</code>', entonces: 'se propaga el error, y se verifica que <strong>nunca</strong> se llamó a <code>guardar</code> del SocioRepository' },
+      { id: 'CP-T5', unidad: '<code>CanjeService</code> (mocks de repositorios y ComercioClient)', dado: 'socio y premio válidos, y el ComercioClient (mock) confirma', cuando: 'se llama <code>canjear(1001, TERMO)</code>', entonces: 'la respuesta informa los puntos restantes, y se verifica una llamada a <code>confirmarCanje</code> y una a cada <code>guardar</code>' }
+    ]
+  },
+
+  // ------------------------------------------------------------------
+  {
+    id: 'biblioteca',
+    titulo: 'Préstamos de Biblioteca',
+    origen: 'Caso nuevo — misma estructura que la Billetera y Tareas',
+    nuevo: true,
+    descripcion:
+      '<p>La biblioteca de la universidad presta <strong>Ejemplares</strong> a sus <strong>Socios</strong>. Cada préstamo queda registrado como un ' +
+      '<strong>Préstamo</strong> con fecha de inicio y de vencimiento (14 días).</p>' +
+      '<ul>' +
+      '<li><strong>Prestar:</strong> desde el mostrador, el bibliotecario registra que un socio se lleva un ejemplar (<code>POST /prestamos</code>).</li>' +
+      '<li><strong>Devolver:</strong> el bibliotecario registra la devolución (<code>POST /prestamos/{id}/devolucion</code>). Si se devuelve tarde, se genera una <strong>Multa</strong> de $500 por día de atraso.</li>' +
+      '<li><strong>Recordatorio:</strong> dos días antes del vencimiento se envía un mail al socio. Un proceso publica un mensaje por cada préstamo por vencer, y otro proceso los consume y manda el mail.</li>' +
+      '</ul>' +
+      '<p><strong>Reglas para prestar:</strong> el socio no puede tener más de 3 préstamos activos ni multas impagas; el ejemplar tiene que estar disponible.</p>' +
+      '<p><strong>Errores:</strong> socio o ejemplar inexistente responde <code>404</code>; una regla no cumplida responde <code>400</code>.</p>',
+    secciones: [
+      {
+        titulo: 'Diagrama de clases',
+        diagrama: [
+          'classDiagram',
+          '  direction LR',
+          '  class PrestamoController {',
+          '    <<Presentacion>>',
+          '    +prestar(request) PrestamoResponse',
+          '    +devolver(idPrestamo) DevolucionResponse',
+          '  }',
+          '  class RecordatorioListener {',
+          '    <<Presentacion - consume mensajes>>',
+          '    +procesar(mensaje)',
+          '  }',
+          '  class PrestamoRequest {',
+          '    <<DTO entrante>>',
+          '    nroSocio',
+          '    codigoEjemplar',
+          '  }',
+          '  class PrestamoResponse {',
+          '    <<DTO saliente>>',
+          '    idPrestamo',
+          '    fechaVencimiento',
+          '  }',
+          '  class PrestamoService {',
+          '    <<Servicio de aplicacion>>',
+          '    +prestar(nroSocio, codigoEjemplar) PrestamoResponse',
+          '    +devolver(idPrestamo) DevolucionResponse',
+          '    +recordarVencimiento(idPrestamo)',
+          '  }',
+          '  class Socio {',
+          '    <<Dominio>>',
+          '    nroSocio',
+          '    email',
+          '    +puedePedirPrestamo() boolean',
+          '  }',
+          '  class Ejemplar {',
+          '    <<Dominio>>',
+          '    codigo',
+          '    disponible',
+          '    +prestar()',
+          '    +devolver()',
+          '  }',
+          '  class Prestamo {',
+          '    <<Dominio>>',
+          '    fechaInicio',
+          '    fechaVencimiento',
+          '    fechaDevolucion',
+          '    +devolver(fecha) Multa',
+          '    +estaActivo() boolean',
+          '  }',
+          '  class Multa {',
+          '    <<Dominio>>',
+          '    monto',
+          '    pagada',
+          '  }',
+          '  class PrestamoRepository {',
+          '    <<Repositorio>>',
+          '  }',
+          '  class SocioRepository {',
+          '    <<Repositorio>>',
+          '  }',
+          '  class EjemplarRepository {',
+          '    <<Repositorio>>',
+          '  }',
+          '  class NotificadorClient {',
+          '    <<Client externo>>',
+          '    +enviarMail(destinatario, texto)',
+          '  }',
+          '  PrestamoController --> PrestamoRequest : recibe',
+          '  PrestamoController --> PrestamoResponse : devuelve',
+          '  PrestamoController --> PrestamoService : delega',
+          '  RecordatorioListener --> PrestamoService : delega',
+          '  PrestamoService --> PrestamoRepository',
+          '  PrestamoService --> SocioRepository',
+          '  PrestamoService --> EjemplarRepository',
+          '  PrestamoService --> NotificadorClient',
+          '  Socio "1" --> "0..*" Prestamo : prestamos',
+          '  Socio "1" --> "0..*" Multa : multas',
+          '  Prestamo --> "1" Ejemplar'
+        ].join('\n')
+      },
+      {
+        titulo: 'Secuencia a nivel componentes: prestar',
+        diagrama: [
+          'sequenceDiagram',
+          '  actor B as Bibliotecario',
+          '  participant C as PrestamoController',
+          '  participant S as PrestamoService',
+          '  participant RS as SocioRepository',
+          '  participant RE as EjemplarRepository',
+          '  participant RP as PrestamoRepository',
+          '  participant DB as Base de datos',
+          '  B->>C: POST /prestamos { nroSocio: 77, codigoEjemplar: LIB-0042 }',
+          '  C->>S: prestar(77, LIB-0042)',
+          '  Note over S: inicio de la transaccion',
+          '  S->>RS: buscarPorNumero(77)',
+          '  RS->>DB: SELECT',
+          '  S->>RE: buscarPorCodigo(LIB-0042)',
+          '  RE->>DB: SELECT',
+          '  Note over S: el Dominio decide (ver secuencia de clases)',
+          '  S->>RP: guardar(prestamo)',
+          '  RP->>DB: INSERT',
+          '  S->>RE: guardar(ejemplar)',
+          '  RE->>DB: UPDATE',
+          '  Note over S: fin de la transaccion (commit)',
+          '  S-->>C: PrestamoResponse',
+          '  C-->>B: 201 Created { idPrestamo, fechaVencimiento }'
+        ].join('\n')
+      },
+      {
+        titulo: 'Secuencia a nivel clases: prestar y devolver',
+        diagrama: [
+          'sequenceDiagram',
+          '  participant S as PrestamoService',
+          '  participant So as "ana:Socio"',
+          '  participant E as "lib42:Ejemplar"',
+          '  participant P as "p9:Prestamo"',
+          '  Note over S: prestar',
+          '  S->>So: puedePedirPrestamo()',
+          '  Note over So: menos de 3 activos y sin multas impagas',
+          '  So-->>S: true',
+          '  S->>E: prestar()',
+          '  Note over E: si no esta disponible, error',
+          '  S->>P: new Prestamo(ana, lib42, hoy)',
+          '  Note over S: devolver, 3 dias tarde',
+          '  S->>P: devolver(hoy)',
+          '  Note over P: calcula dias de atraso',
+          '  P-->>S: Multa de 1500',
+          '  S->>E: devolver()'
+        ].join('\n')
+      },
+      {
+        titulo: 'Secuencia: recordatorio por mail',
+        diagrama: [
+          'sequenceDiagram',
+          '  participant Q as Cola de mensajes',
+          '  participant L as RecordatorioListener',
+          '  participant S as PrestamoService',
+          '  participant RP as PrestamoRepository',
+          '  participant N as NotificadorClient',
+          '  participant M as Servidor de mail',
+          '  Q->>L: mensaje { idPrestamo: 9 }',
+          '  L->>S: recordarVencimiento(9)',
+          '  S->>RP: buscarPorId(9)',
+          '  RP-->>S: p9',
+          '  S->>N: enviarMail(ana@mail.com, Tu prestamo vence el viernes)',
+          '  N->>M: SMTP',
+          '  M-->>N: ok'
+        ].join('\n')
+      }
+    ],
+    tests: [
+      { id: 'BI-T1', unidad: '<code>Socio</code> (Dominio, sin mocks)', dado: 'un socio con 3 préstamos activos y sin multas', cuando: 'se pregunta <code>puedePedirPrestamo()</code>', entonces: 'responde <code>false</code>' },
+      { id: 'BI-T2', unidad: '<code>Prestamo</code> (Dominio, sin mocks)', dado: 'un préstamo que vencía hace 3 días', cuando: 'se llama <code>devolver(hoy)</code>', entonces: 'devuelve una Multa de 1500' },
+      { id: 'BI-T3', unidad: '<code>PrestamoService</code> (mocks de repositorios)', dado: 'el SocioRepository (mock) devuelve un socio con una multa impaga', cuando: 'se llama <code>prestar(77, LIB-0042)</code>', entonces: 'se lanza un error de regla de negocio, y se verifica que <strong>nunca</strong> se llamó a <code>guardar</code> del PrestamoRepository' },
+      { id: 'BI-T4', unidad: '<code>PrestamoService</code> (mocks de repositorio y NotificadorClient)', dado: 'el PrestamoRepository (mock) devuelve el préstamo 9 de Ana', cuando: 'se llama <code>recordarVencimiento(9)</code>', entonces: 'se verifica que se llamó una vez a <code>enviarMail</code> con el mail de Ana' }
+    ]
+  }
+];
