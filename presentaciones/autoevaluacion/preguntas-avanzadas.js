@@ -527,7 +527,7 @@ window.PREGUNTAS_AVANZADAS = [
     ]
   },
 
-  // ------------------------------ Datos (3) ------------------------------
+  // ------------------------------ Datos (2) ------------------------------
   {
     id: 'A29', tema: 'Datos', caso: 'clubpuntos', fragmento: 'canje',
     enunciado: '<p>El vencimiento nocturno recorre los 2 millones de socios y, por cada uno, accede a sus movimientos, que se cargan de forma <em>lazy</em> (uno por uno, cuando se los necesita). El proceso no termina dentro de su ventana de 00 a 06 h. ¿Qué está pasando?</p>',
@@ -617,20 +617,6 @@ window.PREGUNTAS_AVANZADAS = [
         fb: 'El ORM soporta herencia con varias estrategias: tabla única, joined o por clase concreta.' },
       { t: 'Guardar el límite de préstamos en el Controller, según el tipo de socio.',
         fb: 'Sacaría una regla de negocio del Dominio y no resuelve cómo persistir los subtipos.' }
-    ]
-  },
-  {
-    id: 'A38', tema: 'Datos', caso: 'clubpuntos', fragmento: 'canje',
-    enunciado: '<p>Queda una sola unidad de un premio. Dos socios lo canjean al mismo tiempo, los dos canjes leen <code>stock = 1</code> y los dos se confirman: el stock queda en −1. ¿Qué está pasando y qué se necesita?</p>',
-    opciones: [
-      { t: 'Concurrencia: la transacción del Service debe proteger juntas la lectura y la actualización del stock.', ok: true,
-        fb: 'El servidor atiende a muchos usuarios a la vez. La transacción tiene que evitar que dos canjes trabajen sobre el mismo dato viejo, y Premio no debería aceptar quedar en negativo.' },
-      { t: 'No puede pasar: un servidor atiende un pedido por vez, así que el segundo canje espera al primero.',
-        fb: 'Un servidor atiende a muchos clientes a la vez: los dos canjes se ejecutan en simultáneo.' },
-      { t: 'Es un problema de la app móvil: se resuelve deshabilitando el botón después del primer toque.',
-        fb: 'Son dos socios distintos en dos teléfonos: el problema está en el servidor, no en un doble clic.' },
-      { t: 'Es un problema de testing: se resuelve mockeando <code>PremioRepository</code> en los tests.',
-        fb: 'Los mocks aíslan una unidad en un test; no cambian lo que pasa en producción con usuarios concurrentes.' }
     ]
   },
 
