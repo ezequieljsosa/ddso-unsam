@@ -88,7 +88,8 @@ window.PREGUNTAS_MEDIAS = [
     ]
   },
   {
-    id: 'M07', tema: 'Capas', caso: 'billetera', fragmento: 'transferir',
+    id: 'M07', tema: 'Capas', caso: 'billetera',
+    fragmento: 'secuenciaTransferir',
     enunciado: '<p><code>CuentaService.transferir</code> recibe <code>(aliasOrigen, aliasDestino, monto)</code> y no el pedido HTTP completo. ¿Qué ganamos con eso?</p>',
     opciones: [
       { t: 'El Service no depende de HTTP: se reutiliza y se testea sin servidor.', ok: true,
@@ -173,7 +174,23 @@ window.PREGUNTAS_MEDIAS = [
     ]
   },
   {
-    id: 'M10', tema: 'Capas', caso: 'billetera', fragmento: 'transferir',
+    id: 'M10', tema: 'Capas', caso: 'billetera',
+    diagramas: [
+      { titulo: 'Secuencia de este escenario (los ? son parte de la pregunta)', codigo: [
+        'sequenceDiagram',
+        '  actor Cl as Cliente HTTP',
+        '  participant C as CuentaController',
+        '  participant S as CuentaService',
+        '  participant RC as CuentaRepository',
+        '  Cl->>+C: GET /api/cuentas/no.existe/saldo',
+        '  C->>+S: consultarSaldo(no.existe)',
+        '  S->>+RC: findByAlias(no.existe)',
+        '  RC-->>-S: vacio',
+        '  Note over S: lanza CuentaNoEncontradaException',
+        '  S-->>-C: ?',
+        '  C-->>-Cl: ?'
+      ].join('\n') }
+    ],
     enunciado: '<p>Cuando un alias no existe, el Service lanza <code>CuentaNoEncontradaException</code> y el cliente recibe un <code>404</code>. ¿Quién hace esa traducción y por qué está bien ubicada?</p>',
     opciones: [
       { t: 'El manejador global de errores, porque HTTP es asunto de la Presentación.', ok: true,
@@ -303,7 +320,29 @@ window.PREGUNTAS_MEDIAS = [
 
   // ----------------------- Diseño y principios (5) -----------------------
   {
-    id: 'M19', tema: 'Diseño y principios', caso: 'giftcards', fragmento: 'capas',
+    id: 'M19', tema: 'Diseño y principios', caso: 'giftcards',
+    diagramas: [
+      { titulo: 'Diseño propuesto, con lo nuevo resaltado', codigo: [
+        'classDiagram',
+        '  direction LR',
+        '  class GiftCardController {',
+        '    <<Presentacion>>',
+        '  }',
+        '  class GiftCardService {',
+        '    <<Servicio de aplicacion>>',
+        '    +usar(codigo, monto)',
+        '    +armarJson(respuesta) String',
+        '    +ejecutarSql(sql)',
+        '  }',
+        '  class GiftCard {',
+        '    <<Dominio>>',
+        '  }',
+        '  GiftCardController --> GiftCardService',
+        '  GiftCardService --> GiftCard',
+        '  note for GiftCardService "NUEVO: ademas de orquestar, arma el JSON y escribe el SQL"',
+        '  style GiftCardService fill:#f59e0b33,stroke:#fbbf24,stroke-width:2px'
+      ].join('\n') }
+    ],
     enunciado: '<p>Supongamos que <code>GiftCardService</code>, además de orquestar el uso, arma el JSON de la respuesta y escribe a mano el SQL para guardar la tarjeta. ¿Qué principio se ve afectado y por qué?</p>',
     opciones: [
       { t: 'SRP: la clase tiene varios motivos para cambiar.', ok: true,
@@ -317,7 +356,30 @@ window.PREGUNTAS_MEDIAS = [
     ]
   },
   {
-    id: 'M20', tema: 'Diseño y principios', caso: 'giftcards', fragmento: 'capas',
+    id: 'M20', tema: 'Diseño y principios', caso: 'giftcards',
+    diagramas: [
+      { titulo: 'Diseño propuesto, con lo nuevo resaltado', codigo: [
+        'classDiagram',
+        '  direction LR',
+        '  class GiftCardService {',
+        '    <<Servicio de aplicacion>>',
+        '    +usar(codigo, monto)',
+        '  }',
+        '  class GiftCard {',
+        '    <<Dominio>>',
+        '    saldo',
+        '    +descontar(monto)',
+        '  }',
+        '  class ProveedorGiftCardClient {',
+        '    <<Client externo>>',
+        '    +confirmarConsumo(giftCard, monto)',
+        '  }',
+        '  GiftCardService --> GiftCard',
+        '  GiftCard --> ProveedorGiftCardClient : NUEVO - confirma desde descontar',
+        '  note for GiftCard "NUEVO: descontar llama al proveedor"',
+        '  style GiftCard fill:#f59e0b33,stroke:#fbbf24,stroke-width:2px'
+      ].join('\n') }
+    ],
     enunciado: '<p>Otra propuesta: que <code>GiftCard.descontar(monto)</code> llame directamente a <code>ProveedorGiftCardClient</code> para confirmar el consumo. ¿Qué consecuencia tiene?</p>',
     opciones: [
       { t: 'Acopla el Dominio a la infraestructura y complica testear <code>descontar</code>.', ok: true,
@@ -345,7 +407,38 @@ window.PREGUNTAS_MEDIAS = [
     ]
   },
   {
-    id: 'M35', tema: 'Diseño y principios', caso: 'billetera', fragmento: 'transferir',
+    id: 'M35', tema: 'Diseño y principios', caso: 'billetera',
+    diagramas: [
+      { titulo: 'Jerarquía de excepciones de la Billetera', codigo: [
+        'classDiagram',
+        '  direction TB',
+        '  class RuntimeException {',
+        '    <<Java>>',
+        '  }',
+        '  class TransferenciaException {',
+        '    mensaje: fondos insuficientes',
+        '  }',
+        '  class CuentaNoEncontradaException {',
+        '    alias',
+        '  }',
+        '  class Cuenta {',
+        '    <<Dominio>>',
+        '    +transferir(destino, monto)',
+        '  }',
+        '  class CuentaService {',
+        '    <<Servicio de aplicacion>>',
+        '  }',
+        '  class ManejadorGlobalDeErrores {',
+        '    <<Presentacion>>',
+        '  }',
+        '  RuntimeException <|-- TransferenciaException',
+        '  RuntimeException <|-- CuentaNoEncontradaException',
+        '  Cuenta ..> TransferenciaException : lanza',
+        '  CuentaService ..> CuentaNoEncontradaException : lanza',
+        '  ManejadorGlobalDeErrores ..> TransferenciaException : traduce',
+        '  ManejadorGlobalDeErrores ..> CuentaNoEncontradaException : traduce'
+      ].join('\n') }
+    ],
     enunciado: '<p>Cuando una transferencia no se puede hacer, <code>Cuenta</code> lanza <code>TransferenciaException</code> con un mensaje claro (“fondos insuficientes”), en lugar de una excepción genérica con “hubo un error”. ¿Qué cualidad mejora?</p>',
     opciones: [
       { t: 'Robustez: errores claros, al nivel de abstracción del negocio.', ok: true,
@@ -419,7 +512,30 @@ window.PREGUNTAS_MEDIAS = [
 
   // ------------------------------ Spring (1) ------------------------------
   {
-    id: 'M25', tema: 'Spring', caso: 'tareas', fragmento: 'capas',
+    id: 'M25', tema: 'Spring', caso: 'tareas',
+    diagramas: [
+      { titulo: 'TareaRepository y JpaRepository', codigo: [
+        'classDiagram',
+        '  direction LR',
+        '  class TareaService {',
+        '    <<Servicio de aplicacion>>',
+        '  }',
+        '  class TareaRepository {',
+        '    <<interface>>',
+        '    +findByCompletadaFalse()',
+        '  }',
+        '  class JpaRepository {',
+        '    <<interface de Spring Data>>',
+        '    +save(entidad)',
+        '    +findAll()',
+        '    +findById(id)',
+        '    +deleteById(id)',
+        '  }',
+        '  TareaService --> TareaRepository : recibe por constructor',
+        '  JpaRepository <|-- TareaRepository : extiende',
+        '  note for TareaRepository "Ninguna clase escrita a mano la implementa"'
+      ].join('\n') }
+    ],
     enunciado: '<p><code>TareaRepository</code> es una interfaz que extiende <code>JpaRepository</code> y no tiene ninguna clase que la implemente a mano. ¿Qué pasa?</p>',
     opciones: [
       { t: 'Es Fuente de datos y Spring Data genera la implementación al arrancar.', ok: true,
@@ -479,7 +595,25 @@ window.PREGUNTAS_MEDIAS = [
     ]
   },
   {
-    id: 'M37', tema: 'Datos', caso: 'billetera', fragmento: 'transferir',
+    id: 'M37', tema: 'Datos', caso: 'billetera',
+    diagramas: [
+      { titulo: 'Modelo de objetos a mapear', codigo: [
+        'classDiagram',
+        '  direction LR',
+        '  class Cuenta {',
+        '    <<Dominio>>',
+        '    alias',
+        '    saldo',
+        '  }',
+        '  class Movimiento {',
+        '    <<Dominio>>',
+        '    monto',
+        '    fecha',
+        '  }',
+        '  Movimiento "0..*" --> "0..1" Cuenta : origen',
+        '  Movimiento "0..*" --> "1" Cuenta : destino'
+      ].join('\n') }
+    ],
     enunciado: '<p>Cada Movimiento tiene una cuenta origen y una cuenta destino; una cuenta tiene muchos movimientos. En la base relacional, ¿dónde conviene poner la clave foránea?</p>',
     opciones: [
       { t: 'En la tabla de movimientos: cada fila apunta a su cuenta origen y destino.', ok: true,
@@ -493,7 +627,39 @@ window.PREGUNTAS_MEDIAS = [
     ]
   },
   {
-    id: 'M38', tema: 'Datos', caso: 'giftcards', fragmento: 'capas',
+    id: 'M38', tema: 'Datos', caso: 'giftcards',
+    diagramas: [
+      { titulo: 'Opción 1: el saldo se guarda como columna', codigo: [
+        'erDiagram',
+        '  GIFT_CARD ||--o{ CONSUMO : tiene',
+        '  GIFT_CARD {',
+        '    string codigo PK',
+        '    decimal saldo "se actualiza en cada consumo"',
+        '    date vence_el',
+        '  }',
+        '  CONSUMO {',
+        '    int id PK',
+        '    string codigo_gift_card FK',
+        '    decimal monto',
+        '    date fecha',
+        '  }'
+      ].join('\n') },
+      { titulo: 'Opción 2: el saldo se calcula sumando los consumos', codigo: [
+        'erDiagram',
+        '  GIFT_CARD ||--o{ CONSUMO : tiene',
+        '  GIFT_CARD {',
+        '    string codigo PK',
+        '    decimal saldo_inicial',
+        '    date vence_el',
+        '  }',
+        '  CONSUMO {',
+        '    int id PK',
+        '    string codigo_gift_card FK',
+        '    decimal monto',
+        '    date fecha',
+        '  }'
+      ].join('\n') }
+    ],
     enunciado: '<p>El saldo de una gift card se puede guardar como columna o calcular sumando sus consumos. ¿Qué evaluación es correcta?</p>',
     opciones: [
       { t: 'Guardarlo agiliza las lecturas, pero duplica un dato que hay que mantener consistente.', ok: true,
@@ -537,7 +703,8 @@ window.PREGUNTAS_MEDIAS = [
     ]
   },
   {
-    id: 'M40', tema: 'Tipos de aplicación', caso: 'tareas', fragmento: 'capas',
+    id: 'M40', tema: 'Tipos de aplicación', caso: 'tareas',
+    fragmento: 'c4', fragmentoTipo: 'el diagrama C4 (contexto y despliegue)',
     enunciado: '<p>Se agrega un comando <code>tareas listar --pendientes</code> para usar desde la terminal. ¿Qué tipo de aplicación es y qué se reutiliza?</p>',
     opciones: [
       { t: 'CLI: la usa un técnico frente a la terminal; reutiliza el Service y el Dominio.', ok: true,
@@ -552,7 +719,7 @@ window.PREGUNTAS_MEDIAS = [
   },
   // ------------------------- Modelado REST (4) -------------------------
   {
-    id: 'M31', tema: 'Modelado REST', caso: 'billetera', fragmento: 'transferir',
+    id: 'M31', tema: 'Modelado REST', caso: 'billetera',
     enunciado: '<p>Para transferir dinero, ¿qué modelado REST es el adecuado y por qué?</p>',
     opciones: [
       { t: '<code>POST /api/transferencias</code>: crea una transferencia, que queda registrada.', ok: true,
@@ -580,7 +747,17 @@ window.PREGUNTAS_MEDIAS = [
     ]
   },
   {
-    id: 'M33', tema: 'Modelado REST', caso: 'tareas', fragmento: 'capas',
+    id: 'M33', tema: 'Modelado REST', caso: 'tareas',
+    diagramas: [
+      { titulo: 'Estado actual de la tarea 7 (diagrama de objetos)', codigo: [
+        'classDiagram',
+        '  class tarea7["tarea7 : Tarea"] {',
+        '    id = 7',
+        '    titulo = "Estudiar MVC"',
+        '    completada = false',
+        '  }'
+      ].join('\n') }
+    ],
     enunciado: '<p>Se quiere marcar como completada la tarea 7, sin cambiar su título. ¿Qué pedido corresponde?</p>',
     opciones: [
       { t: '<code>PATCH /tareas/7</code> con <code>{ "completada": true }</code>', ok: true,
@@ -594,7 +771,7 @@ window.PREGUNTAS_MEDIAS = [
     ]
   },
   {
-    id: 'M34', tema: 'Modelado REST', caso: 'billetera', fragmento: 'transferir',
+    id: 'M34', tema: 'Modelado REST', caso: 'billetera',
     enunciado: '<p>Llega <code>POST /api/transferencias</code> con un JSON. ¿Cuál es el recorrido correcto entre capas?</p>',
     opciones: [
       { t: 'Controller arma el DTO → Service orquesta → Cuenta decide → Controller responde 201.', ok: true,

@@ -4,7 +4,35 @@
 window.PREGUNTAS_AVANZADAS = [
   // ---------------------------- Capas (13) ----------------------------
   {
-    id: 'A01', tema: 'Capas', caso: 'clubpuntos', fragmento: 'canje',
+    id: 'A01', tema: 'Capas', caso: 'clubpuntos',
+    diagramas: [
+      { titulo: 'Diseño propuesto, con lo nuevo resaltado', codigo: [
+        'classDiagram',
+        '  direction LR',
+        '  class CanjeService {',
+        '    <<Servicio de aplicacion>>',
+        '    +canjear(nroSocio, codigoPremio)',
+        '  }',
+        '  class VencimientoNocturno {',
+        '    <<Proceso por horario - NUEVO>>',
+        '    +vencerPuntos()',
+        '  }',
+        '  class Socio {',
+        '    <<Dominio>>',
+        '    +getMovimientos()',
+        '  }',
+        '  class MovimientoPuntos {',
+        '    <<Dominio>>',
+        '    fecha',
+        '    puntos',
+        '  }',
+        '  CanjeService --> Socio : lee los movimientos',
+        '  VencimientoNocturno --> Socio : tambien necesita la vigencia',
+        '  Socio "1" --> "0..*" MovimientoPuntos',
+        '  note for CanjeService "canjear: recorre los movimientos y suma solo los de los ultimos 12 meses"',
+        '  style VencimientoNocturno fill:#f59e0b33,stroke:#fbbf24,stroke-width:2px'
+      ].join('\n') }
+    ],
     enunciado: '<p>Un desarrollador implementa la regla de vigencia (“solo cuentan los puntos de los últimos 12 meses”) dentro de <code>CanjeService</code>, recorriendo los movimientos del socio. Después, el proceso de vencimiento nocturno necesita la misma regla. ¿Qué evaluación es la más completa?</p>',
     opciones: [
       { t: 'Es un Dominio anémico: la regla se duplica y solo se testea con mocks; va en <code>Socio</code>.', ok: true,
@@ -18,7 +46,32 @@ window.PREGUNTAS_AVANZADAS = [
     ]
   },
   {
-    id: 'A02', tema: 'Capas', caso: 'clubpuntos', fragmento: 'canje',
+    id: 'A02', tema: 'Capas', caso: 'clubpuntos',
+    diagramas: [
+      { titulo: 'Secuencia de este escenario (los ? son parte de la pregunta)', codigo: [
+        'sequenceDiagram',
+        '  actor A as App movil del socio',
+        '  participant C as CanjeController',
+        '  participant S as CanjeService',
+        '  participant RS as SocioRepository',
+        '  participant So as s1:Socio',
+        '  participant CC as ComercioClient',
+        '  participant X as Sistema del comercio',
+        '  A->>+C: POST /canjes { nroSocio: 1001, codigoPremio: TERMO }',
+        '  C->>+S: canjear(1001, TERMO)',
+        '  S->>+RS: buscarPorNumero(1001)',
+        '  RS-->>-S: s1',
+        '  S->>+So: puedeCanjear(termo, hoy)',
+        '  So-->>-S: true',
+        '  S->>+CC: confirmarCanje(1001, TERMO)',
+        '  CC-xX: POST /canjes-confirmados',
+        '  Note over X: no responde',
+        '  CC-->>-S: error de comunicacion',
+        '  Note over S: ?',
+        '  S-->>-C: ?',
+        '  C-->>-A: ?'
+      ].join('\n') }
+    ],
     enunciado: '<p>Durante un canje, el sistema del comercio no responde y <code>ComercioClient</code> lanza un error. Según las reglas del caso (“si el comercio no confirma, el socio conserva sus puntos”), ¿qué diseño lo garantiza?</p>',
     opciones: [
       { t: 'Una sola transacción en el Service, que guarda recién después de la confirmación.', ok: true,
@@ -112,7 +165,49 @@ window.PREGUNTAS_AVANZADAS = [
     ]
   },
   {
-    id: 'A06', tema: 'Capas', caso: 'biblioteca', fragmento: 'prestamo',
+    id: 'A06', tema: 'Capas', caso: 'biblioteca',
+    diagramas: [
+      { titulo: 'Clases del caso (sin sus métodos)', codigo: [
+        'classDiagram',
+        '  direction LR',
+        '  class PrestamoController {',
+        '    <<Presentacion>>',
+        '  }',
+        '  class PrestamoService {',
+        '    <<Servicio de aplicacion>>',
+        '  }',
+        '  class Socio {',
+        '    <<Dominio>>',
+        '    nroSocio',
+        '    email',
+        '  }',
+        '  class Prestamo {',
+        '    <<Dominio>>',
+        '    fechaInicio',
+        '    fechaVencimiento',
+        '    fechaDevolucion',
+        '  }',
+        '  class Ejemplar {',
+        '    <<Dominio>>',
+        '    codigo',
+        '    disponible',
+        '  }',
+        '  class Multa {',
+        '    <<Dominio>>',
+        '    monto',
+        '    pagada',
+        '  }',
+        '  class PrestamoRepository {',
+        '    <<Repositorio>>',
+        '  }',
+        '  PrestamoController --> PrestamoService',
+        '  PrestamoService --> PrestamoRepository',
+        '  PrestamoService --> Socio',
+        '  Socio "1" --> "0..*" Prestamo',
+        '  Socio "1" --> "0..*" Multa',
+        '  Prestamo --> "1" Ejemplar'
+      ].join('\n') }
+    ],
     enunciado: '<p>¿Dónde conviene ubicar la regla “un socio no puede tener más de 3 préstamos activos ni multas impagas”?</p>',
     opciones: [
       { t: 'En <code>Socio.puedePedirPrestamo()</code>, que el Service consulta al orquestar.', ok: true,
@@ -126,7 +221,49 @@ window.PREGUNTAS_AVANZADAS = [
     ]
   },
   {
-    id: 'A07', tema: 'Capas', caso: 'biblioteca', fragmento: 'prestamo',
+    id: 'A07', tema: 'Capas', caso: 'biblioteca',
+    diagramas: [
+      { titulo: 'Clases del caso (sin sus métodos)', codigo: [
+        'classDiagram',
+        '  direction LR',
+        '  class PrestamoController {',
+        '    <<Presentacion>>',
+        '  }',
+        '  class PrestamoService {',
+        '    <<Servicio de aplicacion>>',
+        '  }',
+        '  class Socio {',
+        '    <<Dominio>>',
+        '    nroSocio',
+        '    email',
+        '  }',
+        '  class Prestamo {',
+        '    <<Dominio>>',
+        '    fechaInicio',
+        '    fechaVencimiento',
+        '    fechaDevolucion',
+        '  }',
+        '  class Ejemplar {',
+        '    <<Dominio>>',
+        '    codigo',
+        '    disponible',
+        '  }',
+        '  class Multa {',
+        '    <<Dominio>>',
+        '    monto',
+        '    pagada',
+        '  }',
+        '  class PrestamoRepository {',
+        '    <<Repositorio>>',
+        '  }',
+        '  PrestamoController --> PrestamoService',
+        '  PrestamoService --> PrestamoRepository',
+        '  PrestamoService --> Socio',
+        '  Socio "1" --> "0..*" Prestamo',
+        '  Socio "1" --> "0..*" Multa',
+        '  Prestamo --> "1" Ejemplar'
+      ].join('\n') }
+    ],
     enunciado: '<p>Al devolver un libro 3 días tarde, ¿qué reparto de responsabilidades es coherente con el diseño de la Biblioteca?</p>',
     opciones: [
       { t: '<code>Prestamo.devolver</code> calcula la multa; el Service persiste todo en una transacción.', ok: true,
@@ -140,7 +277,8 @@ window.PREGUNTAS_AVANZADAS = [
     ]
   },
   {
-    id: 'A08', tema: 'Capas', caso: 'biblioteca', fragmento: 'entradas',
+    id: 'A08', tema: 'Capas', caso: 'biblioteca',
+    fragmento: 'c4', fragmentoTipo: 'el diagrama C4 (contexto y despliegue)',
     enunciado: '<p>En el recordatorio por mail, <code>RecordatorioListener</code> recibe un mensaje de la cola y llama a <code>PrestamoService.recordarVencimiento</code>. ¿Por qué este diseño tiene sentido?</p>',
     opciones: [
       { t: 'El listener es otra Presentación: reutiliza el Service y el mail sale por un Client.', ok: true,
@@ -223,7 +361,8 @@ window.PREGUNTAS_AVANZADAS = [
     ]
   },
   {
-    id: 'A13', tema: 'Capas', caso: 'clubpuntos', fragmento: 'canje',
+    id: 'A13', tema: 'Capas', caso: 'clubpuntos',
+    fragmento: 'c4', fragmentoTipo: 'el diagrama C4 (contexto y despliegue)',
     enunciado: '<p>Hay que implementar el vencimiento nocturno de puntos. ¿Qué propuesta es la mejor?</p>',
     opciones: [
       { t: 'Un proceso por horario que use un Service de vencimiento y la regla de <code>Socio</code>.', ok: true,
@@ -367,7 +506,34 @@ window.PREGUNTAS_AVANZADAS = [
 
   // ----------------------- Diseño y principios (5) -----------------------
   {
-    id: 'A19', tema: 'Diseño y principios', caso: 'clubpuntos', fragmento: 'canje',
+    id: 'A19', tema: 'Diseño y principios', caso: 'clubpuntos',
+    diagramas: [
+      { titulo: 'Diseño propuesto, con lo nuevo resaltado', codigo: [
+        'classDiagram',
+        '  direction LR',
+        '  class CanjeController {',
+        '    <<Presentacion>>',
+        '  }',
+        '  class CanjeService {',
+        '    <<Servicio de aplicacion>>',
+        '    +canjear(nroSocio, codigoPremio)',
+        '    +calcularPuntos(importe) int',
+        '    +armarPdfComprobante(canje)',
+        '    +enviarMailPorSmtp(socio)',
+        '  }',
+        '  class Socio {',
+        '    <<Dominio>>',
+        '  }',
+        '  class ComercioClient {',
+        '    <<Client externo>>',
+        '  }',
+        '  CanjeController --> CanjeService',
+        '  CanjeService --> Socio',
+        '  CanjeService --> ComercioClient',
+        '  note for CanjeService "NUEVO: calcularPuntos, armarPdfComprobante y enviarMailPorSmtp"',
+        '  style CanjeService fill:#f59e0b33,stroke:#fbbf24,stroke-width:2px'
+      ].join('\n') }
+    ],
     enunciado: '<p>Con el tiempo, <code>CanjeService</code> también calcula cuántos puntos corresponden a una compra, arma el PDF del comprobante y envía el mail de “canje exitoso” conectándose al servidor de correo. ¿Qué diagnóstico es el más preciso?</p>',
     opciones: [
       { t: 'Viola SRP: puntos, PDF y mail son motivos de cambio de capas distintas.', ok: true,
@@ -381,7 +547,50 @@ window.PREGUNTAS_AVANZADAS = [
     ]
   },
   {
-    id: 'A20', tema: 'Diseño y principios', caso: 'clubpuntos', fragmento: 'canje',
+    id: 'A20', tema: 'Diseño y principios', caso: 'clubpuntos',
+    diagramas: [
+      { titulo: 'Propuesta 1: switch por tipo en el Service', codigo: [
+        'classDiagram',
+        '  direction LR',
+        '  class CanjeService {',
+        '    <<Servicio de aplicacion>>',
+        '    +canjear(nroSocio, codigoPremio)',
+        '  }',
+        '  class Premio {',
+        '    <<Dominio>>',
+        '    tipo',
+        '    costoEnPuntos',
+        '  }',
+        '  CanjeService --> Premio : lee el tipo',
+        '  note for CanjeService "switch tipo: PRODUCTO reserva stock, DESCUENTO genera un codigo, DONACION avisa a la ONG"'
+      ].join('\n') },
+      { titulo: 'Propuesta 2: Premio.entregar() con una implementación por tipo', codigo: [
+        'classDiagram',
+        '  direction TB',
+        '  class CanjeService {',
+        '    <<Servicio de aplicacion>>',
+        '    +canjear(nroSocio, codigoPremio)',
+        '  }',
+        '  class Premio {',
+        '    <<Dominio - abstracta>>',
+        '    costoEnPuntos',
+        '    +entregar()',
+        '  }',
+        '  class ProductoFisico {',
+        '    +entregar()',
+        '  }',
+        '  class Descuento {',
+        '    +entregar()',
+        '  }',
+        '  class Donacion {',
+        '    +entregar()',
+        '  }',
+        '  CanjeService --> Premio : entregar()',
+        '  Premio <|-- ProductoFisico',
+        '  Premio <|-- Descuento',
+        '  Premio <|-- Donacion'
+      ].join('\n') }
+    ],
     enunciado: '<p>Aparecen tipos de premio: producto físico (se reserva stock), descuento (genera un código) y donación (se avisa a una ONG). Una propuesta pone un <code>switch</code> por tipo dentro de <code>CanjeService</code>. Otra le agrega a <code>Premio</code> un método <code>entregar()</code>, con una implementación por cada tipo. ¿Cuál conviene?</p>',
     opciones: [
       { t: 'La de <code>Premio.entregar()</code>: cumple OCP y deja la regla en el Dominio.', ok: true,
@@ -395,7 +604,33 @@ window.PREGUNTAS_AVANZADAS = [
     ]
   },
   {
-    id: 'A21', tema: 'Diseño y principios', caso: 'clubpuntos', fragmento: 'canje',
+    id: 'A21', tema: 'Diseño y principios', caso: 'clubpuntos',
+    diagramas: [
+      { titulo: 'Clases que hoy se modifican con cada cambio del comercio (resaltadas)', codigo: [
+        'classDiagram',
+        '  direction LR',
+        '  class CanjeController {',
+        '    <<Presentacion>>',
+        '  }',
+        '  class CanjeService {',
+        '    <<Servicio de aplicacion>>',
+        '  }',
+        '  class Socio {',
+        '    <<Dominio>>',
+        '  }',
+        '  class ComercioClient {',
+        '    <<Client externo>>',
+        '  }',
+        '  CanjeController --> CanjeService',
+        '  CanjeService --> Socio',
+        '  CanjeService --> ComercioClient',
+        '  note for CanjeController "Hoy se modifica en cada cambio del comercio"',
+        '  note for Socio "Hoy se modifica en cada cambio del comercio"',
+        '  style CanjeController fill:#f59e0b33,stroke:#fbbf24,stroke-width:2px',
+        '  style CanjeService fill:#f59e0b33,stroke:#fbbf24,stroke-width:2px',
+        '  style Socio fill:#f59e0b33,stroke:#fbbf24,stroke-width:2px'
+      ].join('\n') }
+    ],
     enunciado: '<p>Cada vez que el comercio cambia el formato de su API, el equipo termina modificando <code>CanjeService</code>, <code>Socio</code> y <code>CanjeController</code>. ¿Qué cualidad hay que mejorar y cómo?</p>',
     opciones: [
       { t: 'Bajar el acoplamiento con el sistema externo, aislando todo lo del comercio en <code>ComercioClient</code>.', ok: true,
@@ -483,7 +718,7 @@ window.PREGUNTAS_AVANZADAS = [
 
   // ------------------------------ Spring (1) ------------------------------
   {
-    id: 'A26', tema: 'Spring', caso: 'clubpuntos', fragmento: 'canje',
+    id: 'A26', tema: 'Spring', caso: 'clubpuntos',
     enunciado: '<p>Un compañero dice: “<code>Socio</code> tiene <code>@Entity</code>, así que ya es parte del Dominio y está bien diseñado”. ¿Qué le responderías?</p>',
     opciones: [
       { t: 'La anotación solo define el mapeo a tabla; lo que importa es si tiene las reglas.', ok: true,
@@ -499,7 +734,8 @@ window.PREGUNTAS_AVANZADAS = [
 
   // ---------------------- Presentación y MVC (2) ----------------------
   {
-    id: 'A27', tema: 'Presentación y MVC', caso: 'clubpuntos', fragmento: 'capas',
+    id: 'A27', tema: 'Presentación y MVC', caso: 'clubpuntos',
+    fragmento: 'c4', fragmentoTipo: 'el diagrama C4 (contexto y despliegue)',
     enunciado: '<p>La app móvil arma sus pantallas en el teléfono con los datos JSON de la API. La pantalla de la caja del comercio es una página web que se arma en el servidor con una plantilla HTML. ¿Qué afirmación es correcta?</p>',
     opciones: [
       { t: 'Dos Presentaciones con distinta Vista; sus Controladores usan el mismo Service.', ok: true,
@@ -513,7 +749,7 @@ window.PREGUNTAS_AVANZADAS = [
     ]
   },
   {
-    id: 'A28', tema: 'Presentación y MVC', caso: 'biblioteca', fragmento: 'entradas',
+    id: 'A28', tema: 'Presentación y MVC', caso: 'biblioteca',
     enunciado: '<p>La biblioteca suma un bot de Telegram (“/mis_prestamos”) y ya tiene el <code>RecordatorioListener</code> que manda mails. ¿Qué análisis es correcto?</p>',
     opciones: [
       { t: 'El bot es un Controlador con Vista prestada; el mail sale por un Client (Fuente de datos).', ok: true,
@@ -665,7 +901,7 @@ window.PREGUNTAS_AVANZADAS = [
   },
   // ------------------------- Modelado REST (4) -------------------------
   {
-    id: 'A31', tema: 'Modelado REST', caso: 'biblioteca', fragmento: 'entradas',
+    id: 'A31', tema: 'Modelado REST', caso: 'biblioteca',
     enunciado: '<p>¿Qué conjunto de endpoints modela mejor la API de la Biblioteca?</p>',
     opciones: [
       { t: '<code>POST /prestamos</code>, <code>POST /prestamos/{id}/devolucion</code>, <code>GET /socios/{nro}/prestamos?estado=activo</code>', ok: true,
@@ -679,7 +915,7 @@ window.PREGUNTAS_AVANZADAS = [
     ]
   },
   {
-    id: 'A32', tema: 'Modelado REST', caso: 'clubpuntos', fragmento: 'capas',
+    id: 'A32', tema: 'Modelado REST', caso: 'clubpuntos',
     enunciado: '<p>El canje se hizo bien. La app necesita mostrar los puntos restantes y el código de retiro. ¿Qué respuesta es la más adecuada?</p>',
     opciones: [
       { t: '<code>201 Created</code> con un <code>CanjeResponse</code> (puntos restantes y código de retiro).', ok: true,
@@ -693,7 +929,7 @@ window.PREGUNTAS_AVANZADAS = [
     ]
   },
   {
-    id: 'A33', tema: 'Modelado REST', caso: 'clubpuntos', fragmento: 'canje',
+    id: 'A33', tema: 'Modelado REST', caso: 'clubpuntos',
     enunciado: '<p>La app quiere mostrar “cuántos puntos te vencen antes de fin de año”. ¿Qué diseño es el más coherente de punta a punta?</p>',
     opciones: [
       { t: '<code>GET /socios/1001/puntos?vencenAntesDe=2026-12-31</code> → Service → regla de vigencia en <code>Socio</code>.', ok: true,
@@ -707,7 +943,38 @@ window.PREGUNTAS_AVANZADAS = [
     ]
   },
   {
-    id: 'A34', tema: 'Modelado REST', caso: 'biblioteca', fragmento: 'prestamo',
+    id: 'A34', tema: 'Modelado REST', caso: 'biblioteca',
+    diagramas: [
+      { titulo: 'Escenario 1: el ejemplar no existe', codigo: [
+        'sequenceDiagram',
+        '  actor B as Bibliotecario',
+        '  participant C as PrestamoController',
+        '  participant S as PrestamoService',
+        '  participant RE as EjemplarRepository',
+        '  B->>+C: POST /prestamos { nroSocio: 77, codigoEjemplar: LIB-9999 }',
+        '  C->>+S: prestar(77, LIB-9999)',
+        '  S->>+RE: buscarPorCodigo(LIB-9999)',
+        '  RE-->>-S: vacio',
+        '  S-->>-C: ?',
+        '  C-->>-B: ?'
+      ].join('\n') },
+      { titulo: 'Escenario 2: el ejemplar ya está prestado', codigo: [
+        'sequenceDiagram',
+        '  actor B as Bibliotecario',
+        '  participant C as PrestamoController',
+        '  participant S as PrestamoService',
+        '  participant RE as EjemplarRepository',
+        '  participant E as lib42:Ejemplar',
+        '  B->>+C: POST /prestamos { nroSocio: 77, codigoEjemplar: LIB-0042 }',
+        '  C->>+S: prestar(77, LIB-0042)',
+        '  S->>+RE: buscarPorCodigo(LIB-0042)',
+        '  RE-->>-S: lib42 (ya prestado)',
+        '  S->>+E: prestar()',
+        '  E-->>-S: ?',
+        '  S-->>-C: ?',
+        '  C-->>-B: ?'
+      ].join('\n') }
+    ],
     enunciado: '<p>Dos pedidos fallan: uno pide un ejemplar que <strong>no existe</strong>; otro, uno que <strong>ya está prestado</strong>. ¿Qué tratamiento es coherente con las capas y con REST?</p>',
     opciones: [
       { t: 'Inexistente: el Service no lo encuentra → <code>404</code>. Prestado: <code>Ejemplar.prestar()</code> lo rechaza → <code>400</code>.', ok: true,

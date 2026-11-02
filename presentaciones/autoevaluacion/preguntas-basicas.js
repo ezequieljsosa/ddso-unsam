@@ -61,7 +61,7 @@ window.PREGUNTAS_BASICAS = [
     ]
   },
   {
-    id: 'B05', tema: 'Capas', caso: 'giftcards', fragmento: 'capas',
+    id: 'B05', tema: 'Capas', caso: 'giftcards',
     enunciado: '<p>En el caso Gift Cards aparecen <code>UsoGiftCardRequest</code> (DTO entrante) y <code>UsoGiftCardResponse</code> (DTO saliente). ¿Qué son?</p>',
     opciones: [
       { t: 'Objetos que transportan datos entre la Presentación y el Service.', ok: true,
