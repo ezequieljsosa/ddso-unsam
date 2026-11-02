@@ -426,7 +426,7 @@ window.PREGUNTAS_MEDIAS = [
     id: 'M28', tema: 'Presentación y MVC', caso: 'giftcards',
     enunciado: '<p>Se quiere que los usuarios consulten el saldo de sus gift cards desde un bot de Telegram. ¿Qué hay que agregar?</p>',
     opciones: [
-      { t: 'Un handler que llame al mismo Service; la Vista la dibuja Telegram.', ok: true,
+      { t: 'Un Controller nuevo que llame al mismo Service; la Vista la dibuja Telegram.', ok: true,
         fb: 'En el bot la Vista es “prestada”: Telegram dibuja y nosotros decidimos qué responder. El dominio es el mismo.' },
       { t: 'Una copia de <code>GiftCard</code> adaptada a los mensajes de Telegram.',
         fb: 'Copiar el Dominio duplicaría las reglas. La nueva cara se conecta al mismo Modelo.' },
@@ -439,7 +439,7 @@ window.PREGUNTAS_MEDIAS = [
 
   // ------------------------------ Datos (3) ------------------------------
   {
-    id: 'M29', tema: 'Datos', caso: 'billetera', fragmento: 'transferir',
+    id: 'M29', tema: 'Datos', caso: 'billetera', fragmento: 'secuenciaTransferir',
     enunciado: '<p>Durante una transferencia, los saldos de las dos cuentas ya se actualizaron y falla el <code>save</code> del Movimiento. ¿Qué debería pasar?</p>',
     opciones: [
       { t: 'Se revierte toda la transacción y los saldos vuelven a como estaban.', ok: true,
